@@ -43,7 +43,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="Contents\Room.cs" />
+    <Compile Include="Contents\Tile.cs" />
+    <Compile Include="Manager\Contents\MapManager.cs" />
+    <Compile Include="Manager\Core\Core.cs" />
+    <Compile Include="Manager\Core\DataManager.cs" />
+    <Compile Include="Manager\Core\GameManager.cs" />
+    <Compile Include="Manager\Managers.cs" />
+    <Compile Include="Manager\Core\UIManager.cs" />
+    <Compile Include="Main\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

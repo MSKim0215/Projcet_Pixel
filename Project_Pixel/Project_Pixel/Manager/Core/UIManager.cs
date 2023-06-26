@@ -10,9 +10,12 @@ namespace Threading.Manager
 {
     public class UIManager
     {
+        public string[] TilePatterns = { "■", "  ", "◇" };
+        // 벽, 기본, 문
+
         public void Init()
         {
-            Console.WriteLine("UI 매니저 초기화");
+            Console.SetWindowSize(185, 50);
         }
     }
 }

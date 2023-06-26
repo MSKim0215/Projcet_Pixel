@@ -18,30 +18,27 @@
             }
         }
 
-        private readonly TimerManager timer = new TimerManager();
         private readonly GameManager game = new GameManager();
         private readonly UIManager ui = new UIManager();
         private readonly DataManager data = new DataManager();
 
-        public static TimerManager Timer => Instance.timer;
         public static GameManager Game => Instance.game;
         public static UIManager UI => Instance.ui;
         public static DataManager Data => Instance.data;
 
         public override void Start()
         {
-            Game.Init();
-            Timer.Init();
             UI.Init();
-            Data.Init();
+            Game.Init();
+            //Data.Init();
 
             base.Start();
         }
 
         public override void Update()
         {
-            Game.OnUpdate();
-            Data.OnUpdate();
+            //Game.OnUpdate();
+            //Data.OnUpdate();
         }
     }
 }

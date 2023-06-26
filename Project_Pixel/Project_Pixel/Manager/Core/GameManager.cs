@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Project_Pixel.Manager.Contents;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +9,11 @@ namespace Threading.Manager
 {
     public class GameManager
     {
+        private MapManager mapManager;
+
         public void Init()
         {
-            Console.WriteLine("게임 매니저 초기화");
+            mapManager = new MapManager();
         }
 
         public void OnUpdate()

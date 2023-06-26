@@ -1,0 +1,8 @@
+C:\Users\MinSeob Kim\Documents\GitHub\Projcet_Pixel\Project_Pixel\Project_Pixel\bin\Debug\Project_Pixel.exe.config
+C:\Users\MinSeob Kim\Documents\GitHub\Projcet_Pixel\Project_Pixel\Project_Pixel\bin\Debug\Project_Pixel.exe
+C:\Users\MinSeob Kim\Documents\GitHub\Projcet_Pixel\Project_Pixel\Project_Pixel\bin\Debug\Project_Pixel.pdb
+C:\Users\MinSeob Kim\Documents\GitHub\Projcet_Pixel\Project_Pixel\Project_Pixel\obj\Debug\Project_Pixel.csproj.AssemblyReference.cache
+C:\Users\MinSeob Kim\Documents\GitHub\Projcet_Pixel\Project_Pixel\Project_Pixel\obj\Debug\Project_Pixel.csproj.SuggestedBindingRedirects.cache
+C:\Users\MinSeob Kim\Documents\GitHub\Projcet_Pixel\Project_Pixel\Project_Pixel\obj\Debug\Project_Pixel.csproj.CoreCompileInputs.cache
+C:\Users\MinSeob Kim\Documents\GitHub\Projcet_Pixel\Project_Pixel\Project_Pixel\obj\Debug\Project_Pixel.exe
+C:\Users\MinSeob Kim\Documents\GitHub\Projcet_Pixel\Project_Pixel\Project_Pixel\obj\Debug\Project_Pixel.pdb

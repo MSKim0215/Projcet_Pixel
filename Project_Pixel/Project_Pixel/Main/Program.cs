@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Threading.Manager;
 
 namespace Project_Pixel
 {
@@ -10,6 +11,7 @@ namespace Project_Pixel
     {
         static void Main(string[] args)
         {
+            Managers.Instance.Start();
         }
     }
 }
