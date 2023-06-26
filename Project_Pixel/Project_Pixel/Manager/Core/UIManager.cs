@@ -10,12 +10,14 @@ namespace Threading.Manager
 {
     public class UIManager
     {
-        public string[] TilePatterns = { "■", "  ", "◇" };
-        // 벽, 기본, 문
+        public string[] TilePatterns { private set; get; } = { "■", "  " };
+        public string[] PlayerPatterns { private set; get; } = { "△", "▽", "▷", "◁" };
+        // 벽, 기본, 플레이어
 
         public void Init()
         {
             Console.SetWindowSize(185, 50);
+            Console.CursorVisible = false;
         }
     }
 }

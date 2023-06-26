@@ -1,4 +1,5 @@
-﻿using Project_Pixel.Manager.Contents;
+﻿using Project_Pixel.Contents;
+using Project_Pixel.Manager.Contents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,14 +12,12 @@ namespace Threading.Manager
     {
         private MapManager mapManager;
 
+        public Player Player { private set; get; }
+
         public void Init()
         {
+            Player = new Player();
             mapManager = new MapManager();
-        }
-
-        public void OnUpdate()
-        {
-            Console.WriteLine("게임 매니저 업데이트 진행");
         }
     }
 }
