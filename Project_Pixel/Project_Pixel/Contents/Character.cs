@@ -13,6 +13,11 @@ namespace Project_Pixel.Contents
         None, Player, Monster, NPC
     }
 
+    public enum NPCTile
+    {
+        Paddler
+    }
+
     public class Character
     {
         protected Direct direct;

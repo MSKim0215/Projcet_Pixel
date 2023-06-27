@@ -9,16 +9,19 @@ namespace Project_Pixel.Contents
     public enum MonsterType
     {
         None,
-        Abrelshud,
-        Illiakan,
-        Lazalam
+        Slime,
+        PocketMouse,
+        Skeleton
+    }
+
+    public enum MonsterTile
+    {
+        Slime, PocketMouse, Skeleton
     }
 
     public class Monster : Character
     {
         public MonsterType MonsterType { protected set; get; } = MonsterType.None;
-
-        public string textScript = null;
 
         protected Monster(MonsterType type) : base(CharacterType.Monster)
         {
@@ -26,36 +29,30 @@ namespace Project_Pixel.Contents
         }
     }
 
-    public class Abrelshud : Monster
+    public class Slime : Monster
     {
-        public Abrelshud(): base(MonsterType.Abrelshud)
+        public Slime(): base(MonsterType.Slime)
         {
-            MonsterType = MonsterType.Abrelshud;
+            MonsterType = MonsterType.Slime;
             SetStatus(new Stat(100, 20, 1, 10));        // 체력, 공격력, 방어력, 치명타 확률
-
-            textScript = "깰 수 없는 꿈은 현실일지니";
         }
     }
 
-    public class Illiakan : Monster
+    public class PocketMouse : Monster
     {
-        public Illiakan() : base(MonsterType.Illiakan)
+        public PocketMouse() : base(MonsterType.PocketMouse)
         {
-            MonsterType = MonsterType.Illiakan;
+            MonsterType = MonsterType.PocketMouse;
             SetStatus(new Stat(200, 25, 2, 30));        // 체력, 공격력, 방어력, 치명타 확률
-
-            textScript = "네놈들의 끈질긴 운명도, 공허에 휩쓸려 가라앉을 것이다!";
         }
     }
    
-    public class Lazalam : Monster
+    public class Skeleton : Monster
     {
-        public Lazalam() : base(MonsterType.Lazalam)
+        public Skeleton() : base(MonsterType.Skeleton)
         {
-            MonsterType = MonsterType.Lazalam;
+            MonsterType = MonsterType.Skeleton;
             SetStatus(new Stat(300, 35, 3, 50));        // 체력, 공격력, 방어력, 치명타 확률
-
-            textScript = ". . .";
         }
     }
 }
