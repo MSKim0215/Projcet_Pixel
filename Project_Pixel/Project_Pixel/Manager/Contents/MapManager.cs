@@ -12,9 +12,9 @@ using Threading.Manager;
 
 namespace Project_Pixel.Manager.Contents
 {
-    public enum TileTpyes
+    public enum TileTypes
     {
-        Wall, Empty, Player
+        Wall, Empty, Fog
     }
 
     public class Position
@@ -30,22 +30,23 @@ namespace Project_Pixel.Manager.Contents
 
     public class MapManager : Core
     {
-        private const int MAP_WIDTH = 60;
-        private const int MAP_HEIGHT = 45;
+        public const int MAP_WIDTH = 60;
+        public const int MAP_HEIGHT = 45;
 
         private Random random = new Random();
 
         private int splitCount = 0, splitCountMax = 300;
 
         private List<Room> rooms = new List<Room>();
-        private List<Position> corridors = new List<Position>();
+        private List<Corridor> corridors = new List<Corridor>();
         
         public string[,] Maps { private set; get; }
+        public bool[,] VisitedMaps { private set; get; }
 
         public MapManager()
         {
             Maps = new string[MAP_WIDTH, MAP_HEIGHT];
-            Generate();
+            VisitedMaps = new bool[MAP_WIDTH, MAP_HEIGHT];
 
             Start();
         }
@@ -62,7 +63,8 @@ namespace Project_Pixel.Manager.Contents
                 {
                     for (int y = 0; y < MAP_HEIGHT; y++)
                     {
-                        Maps[x, y] = Managers.UI.TilePatterns[(int)TileTpyes.Empty];
+                        Maps[x, y] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
+                        VisitedMaps[x, y] = false;
                     }
                 }
 
@@ -75,14 +77,29 @@ namespace Project_Pixel.Manager.Contents
                 {
                     DrawCorridor(rooms[i], rooms[i + 1]);
                 }
-
                 DrawWallsAroundCorridors();
 
                 if(rooms.Count > 5)
                 {
                     Managers.Game.Player.CurrPos = rooms.First().CenterPosition;
                     Managers.Game.Player.PrevPos = rooms.Last().CenterPosition;
+                    Managers.Game.Player.Direct = Direct.Up;
                     Maps[Managers.Game.Player.CurrPos.X, Managers.Game.Player.CurrPos.Y] = Managers.UI.PlayerPatterns[(int)Direct.Up];
+
+                    Room currentRoom = GetRoomAtPosition(Managers.Game.Player.CurrPos);
+                    if (currentRoom != null && !currentRoom.isVisited)
+                    {
+                        currentRoom.isVisited = true;
+
+                        for (int y = currentRoom.Position.Y; y < currentRoom.Position.Y + currentRoom.Height; y++)
+                        {
+                            for (int x = currentRoom.Position.X; x < currentRoom.Position.X + currentRoom.Width; x++)
+                            {
+                                VisitedMaps[x, y] = true;
+                            }
+                        }
+                    }
+
                     PrintMap();
                     break;
                 }
@@ -99,18 +116,15 @@ namespace Project_Pixel.Manager.Contents
 
                 for(int i =  position.X; i < position.X + width; i++)
                 {
-                    Maps[i, position.Y] = Managers.UI.TilePatterns[(int)TileTpyes.Wall];
-                    Maps[i, position.Y + height - 1] = Managers.UI.TilePatterns[(int)TileTpyes.Wall];
+                    Maps[i, position.Y] = Managers.UI.TilePatterns[(int)TileTypes.Wall];
+                    Maps[i, position.Y + height - 1] = Managers.UI.TilePatterns[(int)TileTypes.Wall];
                 }
 
                 for (int i = position.Y; i < position.Y + height; i++)
                 {
-                    Maps[position.X, i] = Managers.UI.TilePatterns[(int)TileTpyes.Wall];
-                    Maps[position.X + width - 1, i] = Managers.UI.TilePatterns[(int)TileTpyes.Wall];
+                    Maps[position.X, i] = Managers.UI.TilePatterns[(int)TileTypes.Wall];
+                    Maps[position.X + width - 1, i] = Managers.UI.TilePatterns[(int)TileTypes.Wall];
                 }
-
-                Maps[newRoom.CenterPosition.X, newRoom.CenterPosition.Y] = "☆";
-
                 return;
             }
 
@@ -152,17 +166,17 @@ namespace Project_Pixel.Manager.Contents
                 {
                     for (int i = room.Position.X; i < room.Position.X + room.Width; i++)
                     {
-                        Maps[i, room.Position.Y] = Managers.UI.TilePatterns[(int)TileTpyes.Empty];
-                        Maps[i, room.Position.Y + room.Height - 1] = Managers.UI.TilePatterns[(int)TileTpyes.Empty];
+                        Maps[i, room.Position.Y] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
+                        Maps[i, room.Position.Y + room.Height - 1] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
                     }
 
                     for (int i = room.Position.Y; i < room.Position.Y + room.Height; i++)
                     {
-                        Maps[room.Position.X, i] = Managers.UI.TilePatterns[(int)TileTpyes.Empty];
-                        Maps[room.Position.X + room.Width - 1, i] = Managers.UI.TilePatterns[(int)TileTpyes.Empty];
+                        Maps[room.Position.X, i] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
+                        Maps[room.Position.X + room.Width - 1, i] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
                     }
 
-                    Maps[room.CenterPosition.X, room.CenterPosition.Y] = Managers.UI.TilePatterns[(int)TileTpyes.Empty];
+                    Maps[room.CenterPosition.X, room.CenterPosition.Y] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
 
                     removeRooms.Add(room);
                 }
@@ -179,36 +193,55 @@ namespace Project_Pixel.Manager.Contents
             Position point1 = room1.CenterPosition;
             Position point2 = room2.CenterPosition;
 
+            List<Position> positions = new List<Position>();
+
             for (int y = Math.Min(point1.Y, point2.Y); y <= Math.Max(point1.Y, point2.Y); y++)
             {
                 Position corridorPos = new Position(point1.X, y);
-                Maps[point1.X, y] = "☆";
-                corridors.Add(corridorPos);
+                Room currentRoom = GetRoomAtPositionCor(corridorPos);
+                if (currentRoom == null)
+                {
+                    Maps[point1.X, y] = "☆";
+                    positions.Add(corridorPos);
+                }
             }
 
             for (int x = Math.Min(point1.X, point2.X); x <= Math.Max(point1.X, point2.X); x++)
             {
                 Position corridorPos = new Position(x, point2.Y);
-                Maps[x, point2.Y] = "☆";
-                corridors.Add(corridorPos);
+                Room currentRoom = GetRoomAtPositionCor(corridorPos);
+                if (currentRoom == null)
+                {
+                    Maps[x, point2.Y] = "☆";
+                    positions.Add(corridorPos);
+                }
             }
+
+            Corridor corridor = new Corridor(positions);
+            corridors.Add(corridor);
         }
+
 
         private void DrawWallsAroundCorridors()
         {
-            foreach (Position pos in corridors)
+            foreach (Corridor corridor in corridors)
             {
-                for (int y = pos.Y - 1; y <= pos.Y + 1; y++)
+                for(int i = 0; i < corridor.Positions.Count; i++)
                 {
-                    for (int x = pos.X - 1; x <= pos.X + 1; x++)
+                    for(int y = corridor.Positions[i].Y - 1; y <= corridor.Positions[i].Y + 1; y++)
                     {
-                        Position wallPos = new Position(x, y);
-
-                        if (x != pos.X && y != pos.Y)
+                        for(int x = corridor.Positions[i].X - 1; x <= corridor.Positions[i].X + 1; x++)
                         {
-                            if (!IsPositionInsideAnyRoom(wallPos) && !corridors.Contains(wallPos) && Maps[x,y] == Managers.UI.TilePatterns[(int)TileTpyes.Empty])
+                            Position wallPos = new Position(x, y);
+
+                            if(x != corridor.Positions[i].X && y != corridor.Positions[i].Y)
                             {
-                                Maps[x, y] = Managers.UI.TilePatterns[(int)TileTpyes.Wall];
+                                if(!IsPositionInsideAnyRoom(wallPos) && 
+                                    !corridor.Positions.Contains(wallPos) &&
+                                    Maps[x, y] == Managers.UI.TilePatterns[(int)TileTypes.Empty])
+                                {
+                                    Maps[x, y] = Managers.UI.TilePatterns[(int)TileTypes.Wall];
+                                }
                             }
                         }
                     }
@@ -242,12 +275,43 @@ namespace Project_Pixel.Manager.Contents
                 {
                     if (Maps[x, y] == "☆")
                     {
-                        Maps[x, y] = Managers.UI.TilePatterns[(int)TileTpyes.Empty];
+                        Maps[x, y] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
                     }
 
-                    Console.Write(Maps[x, y]);
+                    if (!VisitedMaps[x, y])
+                    {
+                        Console.Write(Managers.UI.TilePatterns[(int)TileTypes.Fog]);
+                    }
+                    else
+                    {
+                        Console.Write(Maps[x, y]);
+                    }
                 }
             }
+        }
+
+        private Room GetRoomAtPosition(Position pos)
+        {
+            return rooms.FirstOrDefault(r => pos.X >= r.Position.X && pos.X < r.Position.X + r.Width &&
+                                             pos.Y >= r.Position.Y && pos.Y < r.Position.Y + r.Height);
+        }
+
+        private Room GetRoomAtPositionCor(Position pos)
+        {
+            return rooms.FirstOrDefault(r => pos.X >= r.Position.X + 1 && pos.X < r.Position.X + r.Width - 1 &&
+                                             pos.Y >= r.Position.Y + 1 && pos.Y < r.Position.Y + r.Height - 1 );
+        }
+
+        private Corridor GetCorridorAtPosition(Position pos)
+        {
+            foreach (Corridor corridor in corridors)
+            {
+                if (corridor.Positions.Contains(pos, new CorridorPosComparer()))
+                {
+                    return corridor;
+                }
+            }
+            return null;
         }
 
         public override void Update()
@@ -255,12 +319,43 @@ namespace Project_Pixel.Manager.Contents
             char moveInput = Console.ReadKey(true).KeyChar;
             int dir = GetDirect(moveInput);
 
+            Managers.Game.Player.Direct = (Direct)dir;
             Maps[Managers.Game.Player.CurrPos.X, Managers.Game.Player.CurrPos.Y] = Managers.UI.PlayerPatterns[dir];
 
             if (IsMove(Managers.Game.Player.CurrPos, Managers.Game.Player.PrevPos, dir))
             {
                 Util.Swap(ref Maps[Managers.Game.Player.CurrPos.X, Managers.Game.Player.CurrPos.Y],
                   ref Maps[Managers.Game.Player.PrevPos.X, Managers.Game.Player.PrevPos.Y]);
+            }
+
+            Room currentRoom = GetRoomAtPosition(Managers.Game.Player.CurrPos);
+            if (currentRoom != null && !currentRoom.isVisited)
+            {
+                currentRoom.isVisited = true;
+
+                for (int y = currentRoom.Position.Y; y < currentRoom.Position.Y + currentRoom.Height; y++)
+                {
+                    for (int x = currentRoom.Position.X; x < currentRoom.Position.X + currentRoom.Width; x++)
+                    {
+                        VisitedMaps[x, y] = true;
+                    }
+                }
+            }
+
+            Corridor currentCorridor = GetCorridorAtPosition(Managers.Game.Player.CurrPos);
+            if (currentCorridor != null && !currentCorridor.isVisited)
+            {
+                currentCorridor.isVisited = true;
+
+                foreach (Position corridorPos in currentCorridor.Positions)
+                {
+                    VisitedMaps[corridorPos.X, corridorPos.Y - 1] = true;
+                    VisitedMaps[corridorPos.X, corridorPos.Y] = true;
+                    VisitedMaps[corridorPos.X, corridorPos.Y + 1] = true;
+                    VisitedMaps[corridorPos.X + 1, corridorPos.Y] = true;
+                    VisitedMaps[corridorPos.X - 1, corridorPos.Y] = true;
+                    VisitedMaps[corridorPos.X - 1, corridorPos.Y - 1] = true;
+                }
             }
             PrintMap();
         }
@@ -275,7 +370,7 @@ namespace Project_Pixel.Manager.Contents
             prevPos.X = curPos.X;
             prevPos.Y = curPos.Y;
 
-            if (!IsTileType(curPos.X + dirX[dir], curPos.Y + dirY[dir], TileTpyes.Wall))
+            if (!IsTileType(curPos.X + dirX[dir], curPos.Y + dirY[dir], TileTypes.Wall))
             {
                 curPos.X += dirX[dir];
                 curPos.Y += dirY[dir];
@@ -296,7 +391,7 @@ namespace Project_Pixel.Manager.Contents
             return -1;
         }
 
-        private bool IsTileType(int x, int y, TileTpyes type)
+        private bool IsTileType(int x, int y, TileTypes type)
         {
             if (Maps[x, y] == Managers.UI.TilePatterns[(int)type]) return true;
             return false;

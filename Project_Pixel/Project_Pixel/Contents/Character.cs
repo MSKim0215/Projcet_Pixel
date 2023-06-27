@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Project_Pixel.Manager.Contents;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Threading.Manager;
 
 namespace Project_Pixel.Contents
 {
@@ -13,12 +15,30 @@ namespace Project_Pixel.Contents
 
     public class Character
     {
+        protected Direct direct;
+
         protected CharacterType characterType = CharacterType.None;
         protected Stat stat;
+
+        public int SightRange { protected set; get; }
+
+        public Position CurrPos { set; get; }
+        public Position PrevPos { set; get; }
+
+        public Direct Direct
+        {
+            get => direct;
+            set
+            {
+                direct = value;
+            }
+        }
 
         protected Character(CharacterType type)
         {
             characterType = type;
+
+            SightRange = 5;
         }
 
         public void SetStatus(Stat stat)

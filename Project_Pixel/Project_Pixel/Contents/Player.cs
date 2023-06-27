@@ -17,8 +17,6 @@ namespace Project_Pixel.Contents
     public class Player : Character
     {
         public PlayerInventory Inven { private set; get; }
-        public Position CurrPos { set; get; }
-        public Position PrevPos { set; get; }
 
         public Player() : base(CharacterType.Player)
         {

@@ -10,14 +10,15 @@ namespace Threading.Manager
 {
     public class GameManager
     {
-        private MapManager mapManager;
-
+        public MapManager MapManager { private set; get; }
         public Player Player { private set; get; }
 
         public void Init()
         {
             Player = new Player();
-            mapManager = new MapManager();
+            MapManager = new MapManager();
+
+            MapManager.Generate();
         }
     }
 }

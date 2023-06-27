@@ -10,7 +10,7 @@ namespace Threading.Manager
 {
     public class UIManager
     {
-        public string[] TilePatterns { private set; get; } = { "■", "  " };
+        public string[] TilePatterns { private set; get; } = { "■", "  ", "□" };
         public string[] PlayerPatterns { private set; get; } = { "△", "▽", "▷", "◁" };
         // 벽, 기본, 플레이어
 
