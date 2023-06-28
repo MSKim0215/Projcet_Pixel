@@ -1,15 +1,9 @@
 ﻿using Project_Pixel.Contents;
-using Project_Pixel.Contents.Debuff_System;
-using Project_Pixel.Manager.Contents;
 using Project_Pixel.Utils;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Threading;
 using Threading.Manager;
 
@@ -138,6 +132,7 @@ namespace Project_Pixel.Manager.Contents
                         }
 
                         Managers.Game.Monsters[i].CurrPos = new Position(rooms[randomIndex].SubPosition.X, rooms[randomIndex].SubPosition.Y);
+                        //FindPath(Managers.Game.Monsters[i].CurrPos, Managers.Game.Player.CurrPos);
                     }
 
                     PrintMap();
@@ -403,11 +398,11 @@ namespace Project_Pixel.Manager.Contents
                         Maps[x, y] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
                     }
 
-                    if (!VisitedMaps[x, y])
-                    {   // TODO: 방문하지 않으면 안개 생성
-                        Console.Write(Managers.UI.TilePatterns[(int)TileTypes.Fog]);
-                    }
-                    else
+                    //if (!VisitedMaps[x, y])
+                    //{   // TODO: 방문하지 않으면 안개 생성
+                    //    Console.Write(Managers.UI.TilePatterns[(int)TileTypes.Fog]);
+                    //}
+                    //else
 
                     // 현재 플레이어가 방 안에 있는지 확인
                     if (IsPositionInsideAnyRoom(Managers.Game.Player.CurrPos))

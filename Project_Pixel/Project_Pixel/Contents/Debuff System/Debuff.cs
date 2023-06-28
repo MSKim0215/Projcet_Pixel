@@ -36,10 +36,13 @@ namespace Project_Pixel.Contents.Debuff_System
         {
             if (Type == DebuffType.Hunger) return;
             Turn += amount;
+        }
 
-            if(Type == DebuffType.Starvation)
+        public void ClearTurn()
+        {
+            if (Type == DebuffType.Starvation)
             {
-                if(Turn <= 0)
+                if (Turn <= 0)
                 {
                     Turn = TurnMax;
                 }

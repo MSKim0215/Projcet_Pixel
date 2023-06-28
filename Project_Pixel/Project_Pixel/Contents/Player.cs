@@ -84,6 +84,7 @@ namespace Project_Pixel.Contents
                 {
                     debuff.DecreaseTurn();
                     OnDamaged(debuff.GetDamage());
+                    debuff.ClearTurn();
                 }
                 else
                 {

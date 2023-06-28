@@ -84,7 +84,7 @@ namespace Project_Pixel.Contents
         {
             Status.NowHp += 30;
 
-            if(Status.NowHp >= Status.MaxHp)
+            if (Status.NowHp >= Status.MaxHp)
             {
                 Status.NowHp = Status.MaxHp;
             }
