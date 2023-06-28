@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,8 +34,16 @@ namespace Project_Pixel.Contents.Debuff_System
 
         public void DecreaseTurn(int amount = -1)
         {
-            if (Type == DebuffType.Hunger || Type == DebuffType.Starvation) return;
+            if (Type == DebuffType.Hunger) return;
             Turn += amount;
+
+            if(Type == DebuffType.Starvation)
+            {
+                if(Turn <= 0)
+                {
+                    Turn = TurnMax;
+                }
+            }
         }
 
         public int GetDamage()
@@ -44,7 +53,7 @@ namespace Project_Pixel.Contents.Debuff_System
                 case DebuffType.Poisoning: return 1 + (Turn / 3);
                 case DebuffType.Bleeding: return 1 + (Turn / 2);
                 case DebuffType.Hunger: return 0;
-                case DebuffType.Starvation: return 1;
+                case DebuffType.Starvation: return (Turn <= 0) ? 1 : 0;
             }
             return 0;
         }
@@ -68,7 +77,7 @@ namespace Project_Pixel.Contents.Debuff_System
                 case DebuffType.Bleeding: return 10;
                 case DebuffType.Poisoning: return 8;
                 case DebuffType.Hunger: return 1;
-                case DebuffType.Starvation: return 1;
+                case DebuffType.Starvation: return 5;
             }
             return 0;
         }

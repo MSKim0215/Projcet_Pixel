@@ -55,6 +55,8 @@ namespace Project_Pixel.Contents
             if (GetHungry() >= GetMaxHungry())
             {
                 Status.Hungry = GetMaxHungry();
+                RemoveDebuff(DebuffType.Hunger);
+                RemoveDebuff(DebuffType.Starvation);
             }
             else if (GetHungry() <= 0)
             {
@@ -68,7 +70,7 @@ namespace Project_Pixel.Contents
                 OnDebuffDamage(DebuffType.Hunger);
             }
 
-            Managers.UI.Print_State(this);
+            Managers.UI.Print_Status(this);
         }
 
         public void OnDebuffDamage(DebuffType type)

@@ -55,6 +55,12 @@ namespace Project_Pixel.Contents
             MyDebuffs.Add(new Debuff(debuff));
         }
 
+        protected void RemoveDebuff(DebuffType debuff)
+        {
+            if (!MyDebuffs.Contains(new Debuff(debuff), new DebuffComparer())) return;
+            MyDebuffs.Remove(new Debuff(debuff));
+        }
+
         public void OnDamaged(Character attacker)
         {
             Random random = new Random();
