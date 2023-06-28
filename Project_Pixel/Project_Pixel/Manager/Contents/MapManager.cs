@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Threading;
 using Threading.Manager;
@@ -79,10 +80,6 @@ namespace Project_Pixel.Manager.Contents
                     DrawCorridor(rooms[i], rooms[i + 1]);
                 }
 
-                //for (int i = 0; i < rooms.Count; i++)
-                //{
-                //    DrawCorridor(rooms[i]);
-                //}
                 DrawWallsAroundCorridors();
 
                 if(rooms.Count > 5)
@@ -106,13 +103,41 @@ namespace Project_Pixel.Manager.Contents
                         }
                     }
 
-                    int randomRoom = random.Next(0, rooms.Count);
-                    while (rooms[randomRoom].CenterPosition == Managers.Game.Player.CurrPos)
+                    int randomIndex = random.Next(0, rooms.Count);
+                    rooms[randomIndex].RefreshSubPosition();
+                    while (rooms[randomIndex].SubPosition == Managers.Game.Player.CurrPos)
                     {
-                        randomRoom = random.Next(0, rooms.Count);
+                        randomIndex = random.Next(0, rooms.Count);
                     }
 
-                    Maps[rooms[randomRoom].CenterPosition.X, rooms[randomRoom].CenterPosition.Y] = Managers.UI.CharacterPatterns[(int)NPCTile.Paddler];
+                    Maps[rooms[randomIndex].SubPosition.X, rooms[randomIndex].SubPosition.Y] = Managers.UI.NPCPatterns[(int)NPCTile.Paddler];
+                    Managers.Game.Peddler.CurrPos = new Position(rooms[randomIndex].SubPosition.X, rooms[randomIndex].SubPosition.Y);
+
+                    Thread.Sleep(10);
+
+                    for (int i = 0; i < Managers.Game.Monsters.Length; i++)
+                    {
+                        randomIndex = random.Next(0, rooms.Count);
+                        rooms[randomIndex].RefreshSubPosition();
+                        while (rooms[randomIndex].SubPosition == Managers.Game.Player.CurrPos)
+                        {
+                            randomIndex = random.Next(0, rooms.Count);
+                        }
+
+                        Thread.Sleep(10);
+
+                        int kind = random.Next(0, 3);
+                        Maps[rooms[randomIndex].SubPosition.X, rooms[randomIndex].SubPosition.Y] = Managers.UI.MonsterPatterns[kind];
+                        
+                        switch(kind)
+                        {
+                            case (int)MonsterTile.Slime: Managers.Game.Monsters[i] = new Slime(); break;
+                            case (int)MonsterTile.PocketMouse: Managers.Game.Monsters[i] = new PocketMouse(); break;
+                            case (int)MonsterTile.Skeleton: Managers.Game.Monsters[i] = new Skeleton(); break;
+                        }
+
+                        Managers.Game.Monsters[i].CurrPos = new Position(rooms[randomIndex].SubPosition.X, rooms[randomIndex].SubPosition.Y);
+                    }
 
                     PrintMap();
                     break;
@@ -278,10 +303,6 @@ namespace Project_Pixel.Manager.Contents
                     Maps[point1.X, y] = "☆";
                     positions.Add(corridorPos);
                 }
-                else if(currentRoom != null && positions.Count > 0)
-                {
-                    break;
-                }
             }
 
             for (int x = Math.Min(point1.X, point2.X); x <= Math.Max(point1.X, point2.X); x++)
@@ -293,10 +314,6 @@ namespace Project_Pixel.Manager.Contents
                 {
                     Maps[x, point2.Y] = "☆";
                     positions.Add(corridorPos);
-                }
-                else if (currentRoom != null && positions.Count > 0)
-                {
-                    break;
                 }
             }
 
@@ -355,19 +372,6 @@ namespace Project_Pixel.Manager.Contents
             return false;
         }
 
-        private bool IsPositionAroundInsideAnyRoom(Position position)
-        {
-            foreach (Room room in rooms)
-            {
-                if (position.X > room.Position.X && position.X < room.Position.X + room.Width + 1 &&
-                    position.Y > room.Position.Y && position.Y < room.Position.Y + room.Height + 1)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         private void PrintMap()
         {
             int startX = 5;
@@ -400,15 +404,26 @@ namespace Project_Pixel.Manager.Contents
                     if (IsPositionInsideAnyRoom(Managers.Game.Player.CurrPos))
                     {   // TODO: 현재 플레이어가 방 안에 있다면
                         Room currentRoom = GetRoomAtPosition(Managers.Game.Player.CurrPos);
-                        if (currentRoom != null && currentRoom.ContainsPosition(new Position(x, y)))
+
+                        if(currentRoom != null)
                         {
-                            Console.ForegroundColor = ConsoleColor.White;
-                            Console.Write(Maps[x, y]);
-                        }
-                        else
-                        {
-                            Console.ForegroundColor = ConsoleColor.DarkGray;
-                            Console.Write(Maps[x, y]);
+                            if(currentRoom.ContainsPosition(Managers.Game.Peddler.CurrPos) &&
+                                x == Managers.Game.Peddler.CurrPos.X && y == Managers.Game.Peddler.CurrPos.Y)
+                            {   // TODO: 방 안에 떠돌이 상인이 있다면 색상 변경
+                                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                                Console.Write(Maps[x, y]);
+                                Console.ResetColor();
+                            }
+                            else if(currentRoom.ContainsPosition(new Position(x, y)))
+                            {
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.Write(Maps[x, y]);
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.DarkGray;
+                                Console.Write(Maps[x, y]);
+                            }
                         }
                         Console.ResetColor();
                     }
@@ -497,10 +512,10 @@ namespace Project_Pixel.Manager.Contents
                 foreach (Position corridorPos in currentCorridor.Positions)
                 {
                     VisitedMaps[corridorPos.X, corridorPos.Y] = true;
-                    VisitedMaps[corridorPos.X, corridorPos.Y - 1] = true;
-                    VisitedMaps[corridorPos.X, corridorPos.Y + 1] = true;
-                    VisitedMaps[corridorPos.X + 1, corridorPos.Y] = true;
-                    VisitedMaps[corridorPos.X - 1, corridorPos.Y] = true;
+                    //VisitedMaps[corridorPos.X, corridorPos.Y - 1] = true;
+                    //VisitedMaps[corridorPos.X, corridorPos.Y + 1] = true;
+                    //VisitedMaps[corridorPos.X + 1, corridorPos.Y] = true;
+                    //VisitedMaps[corridorPos.X - 1, corridorPos.Y] = true;
                     //VisitedMaps[corridorPos.X - 1, corridorPos.Y - 1] = true;
                     //VisitedMaps[corridorPos.X + 1, corridorPos.Y - 1] = true;
                     //VisitedMaps[corridorPos.X - 1, corridorPos.Y + 1] = true;
@@ -557,7 +572,7 @@ namespace Project_Pixel.Manager.Contents
 
         private bool IsTileType(int x, int y, NPCTile type)
         {
-            if (Maps[x, y] == Managers.UI.CharacterPatterns[(int)type]) return true;
+            if (Maps[x, y] == Managers.UI.NPCPatterns[(int)type]) return true;
             return false;
         }
 

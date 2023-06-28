@@ -13,6 +13,7 @@ namespace Threading.Manager
         public MapManager MapManager { private set; get; }
         public Player Player { private set; get; }
         public Peddler Peddler { private set; get; }
+        public Monster[] Monsters { private set; get; } = new Monster[10];
 
         public void Init()
         {
@@ -21,8 +22,13 @@ namespace Threading.Manager
             MapManager = new MapManager();
 
             Managers.UI.Print_GameScene();
-            Managers.UI.Print_PlayerUI(Player);
-            Managers.UI.Print_PlayerInventory(Player);
+            Managers.UI.Print_Status(Player);
+            Managers.UI.Print_State(Player);
+            Managers.UI.Print_Inventory(Player);
+            Managers.UI.Print_Log();
+            Managers.UI.Print_Guide();
+            Managers.UI.Print_Enter();
+
             MapManager.Generate();
         }
     }
