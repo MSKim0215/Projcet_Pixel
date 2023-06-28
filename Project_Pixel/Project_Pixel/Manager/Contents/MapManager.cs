@@ -1,4 +1,5 @@
 ﻿using Project_Pixel.Contents;
+using Project_Pixel.Contents.Debuff_System;
 using Project_Pixel.Manager.Contents;
 using Project_Pixel.Utils;
 using System;
@@ -532,6 +533,9 @@ namespace Project_Pixel.Manager.Contents
                 // 이미지 처리
                 Util.Swap(ref Maps[Managers.Game.Player.CurrPos.X, Managers.Game.Player.CurrPos.Y],
                   ref Maps[Managers.Game.Player.PrevPos.X, Managers.Game.Player.PrevPos.Y]);
+
+                // TODO TEST: 중독
+                //Managers.Game.Player.OnDebuffDamage(DebuffType.Starvation);
             }
 
             // TODO: 방문 체크 (방)

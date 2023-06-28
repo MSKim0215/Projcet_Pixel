@@ -1,4 +1,5 @@
 ﻿using Project_Pixel.Contents;
+using Project_Pixel.Contents.Debuff_System;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -91,13 +92,13 @@ namespace Threading.Manager
                 PaddingSpace(startX, startY + (i + 1), 24);
             }
 
-            if (player.Debuffs != null)
+            if (player.MyDebuffs != null)
             {
-                List<DebuffType> debuffs = player.Debuffs.ToList();
+                List<Debuff> debuffs = player.MyDebuffs.ToList();
                 for (int i = 0; i < debuffs.Count; i++)
                 {
                     Console.SetCursorPosition(startX + 2, startY + (i * 2) + 2);
-                    Console.Write($"{player.GetDebuffName(debuffs[i]).PadLeft(11, ' ')}");
+                    Console.Write($"{debuffs[i].Name.PadLeft(11, ' ')}");
                 }
             }
 

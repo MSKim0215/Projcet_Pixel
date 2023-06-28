@@ -1,4 +1,5 @@
-﻿using Project_Pixel.Contents.Shop;
+﻿using Project_Pixel.Contents.Debuff_System;
+using Project_Pixel.Contents.Shop;
 using Project_Pixel.Manager.Contents;
 using System;
 using System.Collections.Generic;
@@ -51,21 +52,41 @@ namespace Project_Pixel.Contents
         {
             Status.Hungry += amount;
 
-            if(GetHungry() >= GetMaxHungry())
+            if (GetHungry() >= GetMaxHungry())
             {
                 Status.Hungry = GetMaxHungry();
             }
-            else if(GetHungry() <= 0)
+            else if (GetHungry() <= 0)
             {
                 Status.Hungry = 0;
 
                 // TODO: 0% 되면 굶주림 상태
-                Debuffs.Add(DebuffType.Starvation);
-                OnDamaged();
+                OnDebuffDamage(DebuffType.Starvation);
             }
-            else if(GetHungry() <= GetMaxHungry() / 3)
+            else if (GetHungry() <= GetMaxHungry() / 3)
             {   // TODO: 30% 아래가 되면 배고픔 상태
-                Debuffs.Add(DebuffType.Hunger);
+                OnDebuffDamage(DebuffType.Hunger);
+            }
+
+            Managers.UI.Print_State(this);
+        }
+
+        public void OnDebuffDamage(DebuffType type)
+        {
+            SetDebuff(type);
+
+            Debuff debuff = MyDebuffs.Where(what => what.Type == type).First();
+            if(debuff != null)
+            {
+                if(debuff.Turn > 0)
+                {
+                    debuff.DecreaseTurn();
+                    OnDamaged(debuff.GetDamage());
+                }
+                else
+                {
+                    MyDebuffs.Remove(debuff);
+                }
             }
 
             Managers.UI.Print_Status(this);
