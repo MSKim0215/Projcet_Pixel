@@ -18,6 +18,14 @@ namespace Project_Pixel.Contents
         Paddler
     }
 
+    public enum DebuffType
+    {
+        Bleeding,
+        Poisoning,
+        Hunger,
+        Starvation
+    }
+
     public class Character
     {
         protected Direct direct;
@@ -26,6 +34,8 @@ namespace Project_Pixel.Contents
         public Stat Status { set; get; }
         public Position CurrPos { set; get; }
         public Position PrevPos { set; get; }
+
+        public HashSet<DebuffType> Debuffs { protected set; get; } = new HashSet<DebuffType>();
 
         public Direct Direct
         {
@@ -46,6 +56,18 @@ namespace Project_Pixel.Contents
             Status = stat;
         }
 
+        public string GetDebuffName(DebuffType type)
+        {
+            switch(type)
+            {
+                case DebuffType.Bleeding: return "출혈";
+                case DebuffType.Poisoning: return "중독";
+                case DebuffType.Hunger: return "배고픔";
+                case DebuffType.Starvation: return "굶주림";
+            }
+            return "";
+        }
+
         public void OnDamaged(Character attacker)
         {
             Random random = new Random();
@@ -59,7 +81,7 @@ namespace Project_Pixel.Contents
 
             Status.NowHp -= damage;
 
-            if(IsDead())
+            if (IsDead())
             {
                 Status.NowHp = 0;
             }

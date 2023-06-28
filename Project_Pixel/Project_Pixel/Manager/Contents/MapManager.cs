@@ -268,7 +268,8 @@ namespace Project_Pixel.Manager.Contents
                             for (int a = corPos.X - 1; a <= corPos.X + 1; a++)
                             {
                                 Position wallPos = new Position(a, b);
-                                if (!positions.Contains(wallPos, new CorridorPosComparer()))
+                                if (!positions.Contains(wallPos, new CorridorPosComparer()) && 
+                                    !IsPositionInsideAnyRoom(wallPos))
                                 {
                                     arounds.Add(wallPos);
                                 }
@@ -317,7 +318,8 @@ namespace Project_Pixel.Manager.Contents
                             for (int a = corPos.X - 1; a <= corPos.X + 1; a++)
                             {
                                 Position wallPos = new Position(a, b);
-                                if (!positions.Contains(wallPos, new CorridorPosComparer()))
+                                if (!positions.Contains(wallPos, new CorridorPosComparer()) &&
+                                    !IsPositionInsideAnyRoom(wallPos))
                                 {
                                     arounds.Add(wallPos);
                                 }
@@ -400,11 +402,11 @@ namespace Project_Pixel.Manager.Contents
                         Maps[x, y] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
                     }
 
-                    //if (!VisitedMaps[x, y])
-                    //{   // TODO: 방문하지 않으면 안개 생성
-                    //    Console.Write(Managers.UI.TilePatterns[(int)TileTypes.Fog]);
-                    //}
-                    //else
+                    if (!VisitedMaps[x, y])
+                    {   // TODO: 방문하지 않으면 안개 생성
+                        Console.Write(Managers.UI.TilePatterns[(int)TileTypes.Fog]);
+                    }
+                    else
 
                     // 현재 플레이어가 방 안에 있는지 확인
                     if (IsPositionInsideAnyRoom(Managers.Game.Player.CurrPos))
@@ -524,6 +526,10 @@ namespace Project_Pixel.Manager.Contents
 
             if (IsMove(Managers.Game.Player.CurrPos, Managers.Game.Player.PrevPos, dir))
             {
+                // 배고픔 수치 다운
+                Managers.Game.Player.OnAdjustHunger();
+
+                // 이미지 처리
                 Util.Swap(ref Maps[Managers.Game.Player.CurrPos.X, Managers.Game.Player.CurrPos.Y],
                   ref Maps[Managers.Game.Player.PrevPos.X, Managers.Game.Player.PrevPos.Y]);
             }
@@ -554,13 +560,15 @@ namespace Project_Pixel.Manager.Contents
                     VisitedMaps[corridorPos.X, corridorPos.Y] = true;
                 }
 
-                foreach(Position corridorWallPos in currentCorridor.AroundPositions)
+                foreach (Position corridorWallPos in currentCorridor.AroundPositions)
                 {
                     VisitedMaps[corridorWallPos.X, corridorWallPos.Y] = true;
                 }
             }
+
             PrintMap();
         }
+
 
         private bool IsMove(Position curPos, Position prevPos, int dir)
         {

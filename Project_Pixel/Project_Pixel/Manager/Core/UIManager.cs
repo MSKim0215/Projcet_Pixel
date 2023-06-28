@@ -91,6 +91,16 @@ namespace Threading.Manager
                 PaddingSpace(startX, startY + (i + 1), 24);
             }
 
+            if (player.Debuffs != null)
+            {
+                List<DebuffType> debuffs = player.Debuffs.ToList();
+                for (int i = 0; i < debuffs.Count; i++)
+                {
+                    Console.SetCursorPosition(startX + 2, startY + (i * 2) + 2);
+                    Console.Write($"{player.GetDebuffName(debuffs[i]).PadLeft(11, ' ')}");
+                }
+            }
+
             Console.SetCursorPosition(startX, startY + 14);
             Console.Write($"└{"".PadRight(24, '─')}┘");
         }

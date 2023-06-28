@@ -33,7 +33,7 @@ namespace Project_Pixel.Contents
         public int Hungry { set; get; }
         public int HungryMax { set; get; }
 
-        public PlayerStat(int maxHp, int power, int defense, int criChance, int criChanceMax = 100, float criDamageValue = 1.5F, int hungryMax = 100) : base(maxHp, power, defense, criChance, criChanceMax, criDamageValue)
+        public PlayerStat(int maxHp, int power, int defense, int criChance, int criChanceMax = 100, float criDamageValue = 1.5F, int hungryMax = 50) : base(maxHp, power, defense, criChance, criChanceMax, criDamageValue)
         {
             HungryMax = hungryMax;
             Hungry = HungryMax;

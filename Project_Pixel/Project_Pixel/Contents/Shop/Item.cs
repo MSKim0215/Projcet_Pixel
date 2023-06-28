@@ -115,7 +115,7 @@ namespace Project_Pixel.Contents.Shop
         }
     }
 
-    public class Item
+    public class Item 
     {
         public ItemData Info { protected set; get; }
         public int Count { protected set; get; }
