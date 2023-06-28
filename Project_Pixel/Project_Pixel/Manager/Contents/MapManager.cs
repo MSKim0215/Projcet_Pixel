@@ -227,62 +227,6 @@ namespace Project_Pixel.Manager.Contents
             }
         }
 
-        private void DrawCorridor(Room room)
-        {
-            Position point = room.CenterPosition;
-            Position targetPoint = GetClosestRoom(room).CenterPosition;
-
-            List<Position> positions = new List<Position>();
-
-            for (int y = Math.Min(point.Y, targetPoint.Y); y <= Math.Max(point.Y, targetPoint.Y); y++)
-            {
-                Position corridorPos = new Position(point.X, y);
-                Room currentRoom = GetRoomAtPositionCor(corridorPos);
-
-                if (currentRoom == null)
-                {
-                    Maps[point.X, y] = "☆";
-                    positions.Add(corridorPos);
-                }
-            }
-
-            for (int x = Math.Min(point.X, targetPoint.X); x <= Math.Max(point.X, targetPoint.X); x++)
-            {
-                Position corridorPos = new Position(x, targetPoint.Y);
-                Room currentRoom = GetRoomAtPositionCor(corridorPos);
-
-                if (currentRoom == null)
-                {
-                    Maps[x, targetPoint.Y] = "☆";
-                    positions.Add(corridorPos);
-                }
-            }
-
-            List<Position> arounds = new List<Position>();
-            foreach (Position corridorPos in positions)
-            {
-                for (int y = corridorPos.Y - 1; y <= corridorPos.Y + 1; y++)
-                {
-                    for (int x = corridorPos.X - 1; x <= corridorPos.X + 1; x++)
-                    {
-                        Position wallPos = new Position(x, y);
-                        if (!positions.Contains(wallPos, new CorridorPosComparer()))
-                        {
-                            arounds.Add(wallPos);
-                        }
-                    }
-                }
-            }
-
-            for (int i = 0; i < arounds.Count; i++)
-            {
-                positions.Add(arounds[i]);
-            }
-
-            Corridor corridor = new Corridor(positions, arounds);
-            corridors.Add(corridor);
-        }
-
         private void DrawCorridor(Room room1, Room room2)
         {
             room1.RefreshSubPosition();
@@ -291,7 +235,10 @@ namespace Project_Pixel.Manager.Contents
             Position point1 = room1.SubPosition;
             Position point2 = room2.SubPosition;
 
-            List<Position> positions = new List<Position>();
+            List<List<Position>> allPositions = new List<List<Position>>();     // 모든 통로의 좌표 리스트
+            List<Position> positions = new List<Position>();                    // 하나의 통로에 소속된 좌표
+
+            List<List<Position>> allArounds = new List<List<Position>>();       // 모든 통로 주변 벽의 좌표 리스트
 
             for (int y = Math.Min(point1.Y, point2.Y); y <= Math.Max(point1.Y, point2.Y); y++)
             {
@@ -302,6 +249,43 @@ namespace Project_Pixel.Manager.Contents
                 {
                     Maps[point1.X, y] = "☆";
                     positions.Add(corridorPos);
+                }
+                else if (currentRoom != null && positions.Count > 0)
+                {
+                    positions.Add(corridorPos);
+
+                    List<Position> temps = new List<Position>();
+                    for(int i = 0; i < positions.Count; i++)
+                    {
+                        temps.Add(positions[i]);
+                    }
+
+                    List<Position> arounds = new List<Position>();                      // 하나의 통로 주변에 소속된 좌표 리스트
+                    foreach (Position corPos in positions)
+                    {
+                        for (int b = corPos.Y - 1; b <= corPos.Y + 1; b++)
+                        {
+                            for (int a = corPos.X - 1; a <= corPos.X + 1; a++)
+                            {
+                                Position wallPos = new Position(a, b);
+                                if (!positions.Contains(wallPos, new CorridorPosComparer()))
+                                {
+                                    arounds.Add(wallPos);
+                                }
+                            }
+                        }
+                    }
+
+                    List<Position> aroundTemps = new List<Position>();
+                    for (int i = 0; i < arounds.Count; i++)
+                    {
+                        aroundTemps.Add(arounds[i]);
+                    }
+
+                    allPositions.Add(temps);
+                    allArounds.Add(aroundTemps);
+                    positions.Clear();
+                    arounds.Clear();
                 }
             }
 
@@ -315,33 +299,53 @@ namespace Project_Pixel.Manager.Contents
                     Maps[x, point2.Y] = "☆";
                     positions.Add(corridorPos);
                 }
-            }
-
-            List<Position> arounds = new List<Position>();
-            foreach (Position corridorPos in positions)
-            {
-                for (int y = corridorPos.Y - 1; y <= corridorPos.Y + 1; y++)
+                else if (currentRoom != null && positions.Count > 0)
                 {
-                    for (int x = corridorPos.X - 1; x <= corridorPos.X + 1; x++)
+                    positions.Add(corridorPos);
+
+                    List<Position> temps = new List<Position>();
+                    for (int i = 0; i < positions.Count; i++)
                     {
-                        Position wallPos = new Position(x, y);
-                        if (!positions.Contains(wallPos, new CorridorPosComparer()))
+                        temps.Add(positions[i]);
+                    }
+
+                    List<Position> arounds = new List<Position>();                      // 하나의 통로 주변에 소속된 좌표 리스트
+                    foreach (Position corPos in positions)
+                    {
+                        for (int b = corPos.Y - 1; b <= corPos.Y + 1; b++)
                         {
-                            arounds.Add(wallPos);
+                            for (int a = corPos.X - 1; a <= corPos.X + 1; a++)
+                            {
+                                Position wallPos = new Position(a, b);
+                                if (!positions.Contains(wallPos, new CorridorPosComparer()))
+                                {
+                                    arounds.Add(wallPos);
+                                }
+                            }
                         }
                     }
+
+                    List<Position> aroundTemps = new List<Position>();
+                    for (int i = 0; i < arounds.Count; i++)
+                    {
+                        aroundTemps.Add(arounds[i]);
+                    }
+
+                    allPositions.Add(temps);
+                    allArounds.Add(aroundTemps);
+                    positions.Clear();
+                    arounds.Clear();
                 }
             }
 
-            for (int i = 0; i < arounds.Count; i++)
+            for (int i = 0; i < allPositions.Count; i++)
             {
-                positions.Add(arounds[i]);
+                Corridor corridor = new Corridor();
+                corridor.SetPosition(allPositions[i]);
+                corridor.SetAroundPosition(allArounds[i]);
+                corridors.Add(corridor);
             }
-
-            Corridor corridor = new Corridor(positions, arounds);
-            corridors.Add(corridor);
         }
-
 
         private void DrawWallsAroundCorridors()
         {
@@ -350,7 +354,7 @@ namespace Project_Pixel.Manager.Contents
                 foreach(Position aroundPos in corridor.AroundPositions)
                 {
                     if (!IsPositionInsideAnyRoom(aroundPos) &&
-                        corridor.Positions.Contains(aroundPos, new CorridorPosComparer()) &&
+                        corridor.AroundPositions.Contains(aroundPos, new CorridorPosComparer()) &&
                         Maps[aroundPos.X, aroundPos.Y] == Managers.UI.TilePatterns[(int)TileTypes.Empty])
                     {
                         Maps[aroundPos.X, aroundPos.Y] = Managers.UI.TilePatterns[(int)TileTypes.Wall];
@@ -401,51 +405,87 @@ namespace Project_Pixel.Manager.Contents
                     //    Console.Write(Managers.UI.TilePatterns[(int)TileTypes.Fog]);
                     //}
                     //else
+
+                    // 현재 플레이어가 방 안에 있는지 확인
                     if (IsPositionInsideAnyRoom(Managers.Game.Player.CurrPos))
-                    {   // TODO: 현재 플레이어가 방 안에 있다면
+                    {
                         Room currentRoom = GetRoomAtPosition(Managers.Game.Player.CurrPos);
 
-                        if(currentRoom != null)
+                        if (currentRoom != null && currentRoom.ContainsPosition(new Position(x, y)))
                         {
-                            if(currentRoom.ContainsPosition(Managers.Game.Peddler.CurrPos) &&
+                            // 방 안에 있는 Character에게 색상 부여
+                            if (currentRoom.ContainsPosition(Managers.Game.Peddler.CurrPos) &&
                                 x == Managers.Game.Peddler.CurrPos.X && y == Managers.Game.Peddler.CurrPos.Y)
-                            {   // TODO: 방 안에 떠돌이 상인이 있다면 색상 변경
+                            {
                                 Console.ForegroundColor = ConsoleColor.DarkGreen;
                                 Console.Write(Maps[x, y]);
-                                Console.ResetColor();
                             }
-                            else if(currentRoom.ContainsPosition(new Position(x, y)))
+                            else if (IsTileType(x, y, MonsterTile.Slime) ||
+                                     IsTileType(x, y, MonsterTile.PocketMouse) ||
+                                     IsTileType(x, y, MonsterTile.Skeleton))
                             {
-                                Console.ForegroundColor = ConsoleColor.White;
+                                // Character에 따라 다른 색상 적용
+                                Console.ForegroundColor = ConsoleColor.Red; // 예시로 빨간색을 사용
                                 Console.Write(Maps[x, y]);
                             }
                             else
                             {
-                                Console.ForegroundColor = ConsoleColor.DarkGray;
+                                Console.ForegroundColor = ConsoleColor.White;
                                 Console.Write(Maps[x, y]);
                             }
-                        }
-                        Console.ResetColor();
-                    }
-                    else
-                    {
-                        Corridor currentCorridor = GetCorridorAtPosition(Managers.Game.Player.CurrPos);
-                        if (currentCorridor != null && currentCorridor.ContainsPosition(new Position(x, y)))
-                        {
-                            Console.ForegroundColor = ConsoleColor.White;
-                            Console.Write(Maps[x, y]);
                         }
                         else
                         {
                             Console.ForegroundColor = ConsoleColor.DarkGray;
                             Console.Write(Maps[x, y]);
                         }
-                        Console.ResetColor();
                     }
+                    else
+                    {
+                        Corridor currentCorridor = GetCorridorAtPosition(Managers.Game.Player.CurrPos);
+
+                        if(currentCorridor != null && currentCorridor.ContainsAround(new Position(x,y)))
+                        {
+                            if (IsTileType(x, y, MonsterTile.Slime) ||
+                                     IsTileType(x, y, MonsterTile.PocketMouse) ||
+                                     IsTileType(x, y, MonsterTile.Skeleton))
+                            {
+                                // Character에 따라 다른 색상 적용
+                                Console.ForegroundColor = ConsoleColor.Red; // 예시로 빨간색을 사용
+                                Console.Write(Maps[x, y]);
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.White;
+                                Console.Write(Maps[x, y]);
+                            }
+                        }
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                            Console.Write(Maps[x, y]);
+                        }
+                    }
+                    Console.ResetColor();
                 }
             }
         }
 
+
+        private List<int> GetRoomInsideMonsterIndex(Room currentRoom, Position pos)
+        {
+            List<int> indexList = new List<int>();
+
+            for (int i = 0; i < Managers.Game.Monsters.Length; i++)
+            {
+                if (currentRoom.ContainsPosition(Managers.Game.Monsters[i].CurrPos) &&
+                    pos.X == Managers.Game.Monsters[i].CurrPos.X && pos.Y == Managers.Game.Monsters[i].CurrPos.Y)
+                {
+                    indexList.Add(i);
+                }
+            }
+            return indexList;
+        }
 
 
         private Room GetRoomAtPosition(Position pos)
@@ -512,14 +552,11 @@ namespace Project_Pixel.Manager.Contents
                 foreach (Position corridorPos in currentCorridor.Positions)
                 {
                     VisitedMaps[corridorPos.X, corridorPos.Y] = true;
-                    //VisitedMaps[corridorPos.X, corridorPos.Y - 1] = true;
-                    //VisitedMaps[corridorPos.X, corridorPos.Y + 1] = true;
-                    //VisitedMaps[corridorPos.X + 1, corridorPos.Y] = true;
-                    //VisitedMaps[corridorPos.X - 1, corridorPos.Y] = true;
-                    //VisitedMaps[corridorPos.X - 1, corridorPos.Y - 1] = true;
-                    //VisitedMaps[corridorPos.X + 1, corridorPos.Y - 1] = true;
-                    //VisitedMaps[corridorPos.X - 1, corridorPos.Y + 1] = true;
-                    //VisitedMaps[corridorPos.X + 1, corridorPos.Y + 1] = true;
+                }
+
+                foreach(Position corridorWallPos in currentCorridor.AroundPositions)
+                {
+                    VisitedMaps[corridorWallPos.X, corridorWallPos.Y] = true;
                 }
             }
             PrintMap();
@@ -573,6 +610,12 @@ namespace Project_Pixel.Manager.Contents
         private bool IsTileType(int x, int y, NPCTile type)
         {
             if (Maps[x, y] == Managers.UI.NPCPatterns[(int)type]) return true;
+            return false;
+        }
+
+        private bool IsTileType(int x, int y, MonsterTile type)
+        {
+            if (Maps[x, y] == Managers.UI.MonsterPatterns[(int)type]) return true;
             return false;
         }
 

@@ -58,18 +58,32 @@ namespace Project_Pixel.Contents
         public List<Position> Positions { private set; get; } = new List<Position>();
         public List<Position> AroundPositions { private set; get; } = new List<Position>();
 
-        public Corridor(List<Position> positions, List<Position> arounds)
+        public Corridor()
         {
-            Positions = positions;
-            AroundPositions = arounds;
             isVisited = false;
         }
+
+        public void SetPosition(List<Position> positions) => Positions = positions;
+
+        public void SetAroundPosition(List<Position> arounds) => AroundPositions = arounds;
 
         public bool ContainsPosition(Position position)
         {
             foreach (Position corridorPos in Positions)
             {
                 if (corridorPos.X == position.X && corridorPos.Y == position.Y)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool ContainsAround(Position position)
+        {
+            foreach (Position aroundPos in AroundPositions)
+            {
+                if (aroundPos.X == position.X && aroundPos.Y == position.Y)
                 {
                     return true;
                 }
