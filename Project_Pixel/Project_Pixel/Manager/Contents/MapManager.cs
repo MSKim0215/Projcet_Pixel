@@ -397,11 +397,11 @@ namespace Project_Pixel.Manager.Contents
                         Maps[x, y] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
                     }
 
-                    //if (!VisitedMaps[x, y])
-                    //{   // TODO: 방문하지 않으면 안개 생성
-                    //    Console.Write(Managers.UI.TilePatterns[(int)TileTypes.Fog]);
-                    //}
-                    //else
+                    if (!VisitedMaps[x, y])
+                    {   // TODO: 방문하지 않으면 안개 생성
+                        Console.Write(Managers.UI.TilePatterns[(int)TileTypes.Fog]);
+                    }
+                    else
 
                     // 현재 플레이어가 방 안에 있는지 확인
                     if (IsPositionInsideAnyRoom(Managers.Game.Player.CurrPos))
@@ -431,7 +431,16 @@ namespace Project_Pixel.Manager.Contents
                         }
                         else
                         {
-                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                            if (IsTileType(x, y, MonsterTile.Slime) ||
+                                     IsTileType(x, y, MonsterTile.PocketMouse) ||
+                                     IsTileType(x, y, MonsterTile.Skeleton))
+                            {
+                                Console.ForegroundColor = ConsoleColor.Black;
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.DarkGray;
+                            }
                             Console.Write(Maps[x, y]);
                         }
                         Console.ResetColor();
@@ -457,7 +466,16 @@ namespace Project_Pixel.Manager.Contents
                         }
                         else
                         {
-                            Console.ForegroundColor = ConsoleColor.DarkGray;
+                            if (IsTileType(x, y, MonsterTile.Slime) ||
+                                     IsTileType(x, y, MonsterTile.PocketMouse) ||
+                                     IsTileType(x, y, MonsterTile.Skeleton))
+                            {
+                                Console.ForegroundColor = ConsoleColor.Black;
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.DarkGray;
+                            }
                             Console.Write(Maps[x, y]);
                         }
                         Console.ResetColor();
@@ -556,11 +574,6 @@ namespace Project_Pixel.Manager.Contents
                     VisitedMaps[corridorWallPos.X, corridorWallPos.Y] = true;
                 }
             }
-
-            for (int i = 0; i < Managers.Game.Monsters.Length; i++)
-            {
-               ;
-            }
             PrintMap();
         }
 
@@ -572,7 +585,14 @@ namespace Project_Pixel.Manager.Contents
             target.PrevPos.X = target.CurrPos.X;
             target.PrevPos.Y = target.CurrPos.Y;
 
-            if(IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], NPCTile.Paddler))
+            if (IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], MonsterTile.Slime) ||
+                IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], MonsterTile.PocketMouse) ||
+                IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], MonsterTile.Skeleton))
+            {
+                return false;
+            }
+
+            if (IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], NPCTile.Paddler))
             {   
                 // TODO: 거래 진행
                 return false;
