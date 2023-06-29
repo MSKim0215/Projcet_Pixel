@@ -546,7 +546,11 @@ namespace Project_Pixel.Manager.Contents
                 // 몬스터 움직임
                 for (int i = 0; i < Managers.Game.Monsters.Length; i++)
                 {
-                    if (!Managers.Game.Monsters[i].IsPlayerInSight())
+                    if (IsAdjacentToPlayer(Managers.Game.Monsters[i]))
+                    {
+                        Managers.Game.Monsters[i].Attack();
+                    }
+                    else if (!Managers.Game.Monsters[i].IsPlayerInSight())
                     {
                         // 시야에 없으면 자유 이동
                         Managers.Game.Monsters[i].Direct = (Direct)random.Next(0, 4);
@@ -555,14 +559,6 @@ namespace Project_Pixel.Manager.Contents
                         {
                             Util.Swap(ref Maps[Managers.Game.Monsters[i].CurrPos.X, Managers.Game.Monsters[i].CurrPos.Y],
                                 ref Maps[Managers.Game.Monsters[i].PrevPos.X, Managers.Game.Monsters[i].PrevPos.Y]);
-                        }
-                    }
-                    else
-                    {
-                        if (IsAdjacentToPlayer(Managers.Game.Monsters[i]))
-                        {
-                            Managers.UI.Print_GameLog($"{Managers.Game.Monsters[i].MonsterType} 공격!                    ");
-                            Managers.Game.Player.OnDamaged(Managers.Game.Monsters[i]);
                         }
                     }
                 }
@@ -608,7 +604,7 @@ namespace Project_Pixel.Manager.Contents
             int dy = Math.Abs(character.CurrPos.Y - Managers.Game.Player.CurrPos.Y);
 
             return (dx <= 1 && dy <= 1);
-        }
+        }   
 
 
         private bool IsMove(Character target)

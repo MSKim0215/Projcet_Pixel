@@ -23,11 +23,11 @@ namespace Project_Pixel.Contents
         Slime, PocketMouse, Skeleton
     }
 
-    public class Monster : Character
+    public class Monster : Character, IAttack
     {
         private List<Node> targetPath = new List<Node>();
         private MonsterType monsterType = MonsterType.None;
-        private string name;
+        protected string name;
 
 
         public MonsterType MonsterType
@@ -139,6 +139,12 @@ namespace Project_Pixel.Contents
             }
             return false; // 시작 위치와 끝 위치 사이에 벽이 없습니다.
         }
+
+        public virtual void Attack()
+        {
+            Managers.UI.Print_GameLog($"{name} 공격!                    ");
+            Managers.Game.Player.OnDamaged(this);
+        }
     }
 
     public class Slime : Monster
@@ -148,6 +154,17 @@ namespace Project_Pixel.Contents
             MonsterType = MonsterType.Slime;
             SetStatus(new Stat(100, 1, 1, 10));        // 체력, 공격력, 방어력, 치명타 확률
         }
+
+        public override void Attack()
+        {
+            base.Attack();
+
+            Random rand = new Random();
+            if(rand.Next(0, 101) < 30)
+            {
+                Managers.Game.Player.OnDebuffDamage(Debuff_System.DebuffType.Poisoning);
+            }
+        }
     }
 
     public class PocketMouse : Monster
@@ -156,6 +173,17 @@ namespace Project_Pixel.Contents
         {
             MonsterType = MonsterType.PocketMouse;
             SetStatus(new Stat(200, 2, 2, 30));        // 체력, 공격력, 방어력, 치명타 확률
+        }
+
+        public override void Attack()
+        {
+            base.Attack();
+
+            Random rand = new Random();
+            if (rand.Next(0, 101) < 30)
+            {
+                Managers.Game.Player.OnDebuffDamage(Debuff_System.DebuffType.Bleeding);
+            }
         }
     }
    
