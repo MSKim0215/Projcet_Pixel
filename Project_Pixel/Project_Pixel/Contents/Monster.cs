@@ -1,8 +1,10 @@
 ﻿using Project_Pixel.Manager.Contents;
+using Project_Pixel.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Threading.Manager;
 
@@ -62,16 +64,56 @@ namespace Project_Pixel.Contents
 
             if (isInXRange && isInYRange)
             {
-                if (IsThereAWallBetween(CurrPos, playerPos))
-                {
-                    return false;
-                }
+                //if (IsThereAWallBetween(CurrPos, playerPos))
+                //{
+                //    return false;
+                //}
 
                 Managers.UI.Print_GameLog($"{name}을 만났습니다.                 ");
 
                 targetPath = PathManager.FindPath(CurrPos, playerPos);
+                if (targetPath.Count == 1)
+                {
+                    if (targetPath[0].Position != Managers.Game.Player.CurrPos)
+                    {
+                        PrevPos = CurrPos;
 
-                return true;
+                        if (Managers.Game.MapManager.Maps[targetPath[0].Position.X, targetPath[0].Position.Y] == Managers.UI.TilePatterns[(int)TileTypes.Wall] ||
+                            Managers.Game.MapManager.Maps[targetPath[0].Position.X, targetPath[0].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.Slime] ||
+                            Managers.Game.MapManager.Maps[targetPath[0].Position.X, targetPath[0].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.PocketMouse] ||
+                            Managers.Game.MapManager.Maps[targetPath[0].Position.X, targetPath[0].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.Skeleton] ||
+                            Managers.Game.MapManager.Maps[targetPath[0].Position.X, targetPath[0].Position.Y] == Managers.UI.NPCPatterns[(int)NPCTile.Paddler])
+                        {
+                            return true;
+                        }
+                        CurrPos = targetPath[0].Position;
+
+                        Util.Swap(ref Managers.Game.MapManager.Maps[CurrPos.X, CurrPos.Y], ref Managers.Game.MapManager.Maps[PrevPos.X, PrevPos.Y]);
+                        return true;
+                    }
+                }
+                else if(targetPath.Count >= 2)
+                {
+                    if (targetPath[1].Position != Managers.Game.Player.CurrPos)
+                    {
+                        PrevPos = CurrPos;
+
+                        if (Managers.Game.MapManager.Maps[targetPath[1].Position.X, targetPath[1].Position.Y] == Managers.UI.TilePatterns[(int)TileTypes.Wall] ||
+    Managers.Game.MapManager.Maps[targetPath[1].Position.X, targetPath[1].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.Slime] ||
+    Managers.Game.MapManager.Maps[targetPath[1].Position.X, targetPath[1].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.PocketMouse] ||
+    Managers.Game.MapManager.Maps[targetPath[1].Position.X, targetPath[1].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.Skeleton] ||
+    Managers.Game.MapManager.Maps[targetPath[1].Position.X, targetPath[1].Position.Y] == Managers.UI.NPCPatterns[(int)NPCTile.Paddler])
+                        {
+                            return true;
+                        }
+
+                        
+                        CurrPos = targetPath[1].Position;
+
+                        Util.Swap(ref Managers.Game.MapManager.Maps[CurrPos.X, CurrPos.Y], ref Managers.Game.MapManager.Maps[PrevPos.X, PrevPos.Y]);
+                        return true;
+                    }
+                }
             }
             return false;
         }
@@ -97,7 +139,6 @@ namespace Project_Pixel.Contents
             }
             return false; // 시작 위치와 끝 위치 사이에 벽이 없습니다.
         }
-
     }
 
     public class Slime : Monster
@@ -105,7 +146,7 @@ namespace Project_Pixel.Contents
         public Slime(): base(MonsterType.Slime)
         {
             MonsterType = MonsterType.Slime;
-            SetStatus(new Stat(100, 20, 1, 10));        // 체력, 공격력, 방어력, 치명타 확률
+            SetStatus(new Stat(100, 1, 1, 10));        // 체력, 공격력, 방어력, 치명타 확률
         }
     }
 
@@ -114,7 +155,7 @@ namespace Project_Pixel.Contents
         public PocketMouse() : base(MonsterType.PocketMouse)
         {
             MonsterType = MonsterType.PocketMouse;
-            SetStatus(new Stat(200, 25, 2, 30));        // 체력, 공격력, 방어력, 치명타 확률
+            SetStatus(new Stat(200, 2, 2, 30));        // 체력, 공격력, 방어력, 치명타 확률
         }
     }
    
@@ -123,7 +164,7 @@ namespace Project_Pixel.Contents
         public Skeleton() : base(MonsterType.Skeleton)
         {
             MonsterType = MonsterType.Skeleton;
-            SetStatus(new Stat(300, 35, 3, 50));        // 체력, 공격력, 방어력, 치명타 확률
+            SetStatus(new Stat(300, 3, 3, 50));        // 체력, 공격력, 방어력, 치명타 확률
         }
     }
 }

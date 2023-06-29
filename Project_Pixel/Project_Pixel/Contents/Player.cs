@@ -25,7 +25,26 @@ namespace Project_Pixel.Contents
             Inven = new PlayerInventory();
             CurrPos = new Position(0, 0);
             PrevPos = new Position(0, 0);
-            Status = new PlayerStat(50, 3, 1, 10);      // 체력, 공격력, 방어력, 치명타 확률      
+            Status = new PlayerStat(50, 3, 0, 10);      // 체력, 공격력, 방어력, 치명타 확률      
+        }
+
+        public override void OnDamaged(Character attacker)
+        {
+            Random random = new Random();
+            int critical = random.Next(0, 101);
+            int damage = (attacker.GetPower() - Status.Defense <= 0) ? 0 : attacker.GetPower() - Status.Defense;
+
+            if (critical <= attacker.Status.CriChance)
+            {
+                damage = (int)(damage * attacker.Status.CriDamageValue);
+            }
+
+            Status.NowHp -= damage;
+
+            if (IsDead())
+            {
+                Status.NowHp = 0;
+            }
         }
 
         public void OnDamaged(int damage = 1)

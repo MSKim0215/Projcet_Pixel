@@ -32,7 +32,7 @@ namespace Project_Pixel.Manager.Contents
 
         private Random random = new Random();
 
-        private int splitCount = 0, splitCountMax = 300;
+        private int splitCount = 0, splitCountMax = 350;
 
         private List<Room> rooms = new List<Room>();
         private List<Corridor> corridors = new List<Corridor>();
@@ -77,7 +77,7 @@ namespace Project_Pixel.Manager.Contents
 
                 DrawWallsAroundCorridors();
 
-                if(rooms.Count > 5)
+                if(rooms.Count > 6)
                 {
                     Managers.Game.Player.CurrPos = rooms.First().CenterPosition;
                     Managers.Game.Player.PrevPos = rooms.Last().CenterPosition;
@@ -364,8 +364,8 @@ namespace Project_Pixel.Manager.Contents
         {
             foreach (Room room in rooms)
             {
-                if (position.X > room.Position.X - 1 && position.X < room.Position.X + room.Width &&
-                    position.Y > room.Position.Y - 1 && position.Y < room.Position.Y + room.Height)
+                if (position.X > room.Position.X && position.X < room.Position.X + room.Width - 1 &&
+                    position.Y > room.Position.Y && position.Y < room.Position.Y + room.Height - 1)
                 {
                     return true;
                 }
@@ -373,7 +373,7 @@ namespace Project_Pixel.Manager.Contents
             return false;
         }
 
-        private void PrintMap()
+        public void PrintMap()
         {
             int startX = 5;
             int startY = 3;
@@ -435,7 +435,15 @@ namespace Project_Pixel.Manager.Contents
                                      IsTileType(x, y, MonsterTile.PocketMouse) ||
                                      IsTileType(x, y, MonsterTile.Skeleton))
                             {
-                                Console.ForegroundColor = ConsoleColor.Black;
+                                if ((x == Managers.Game.Player.CurrPos.X || x == Managers.Game.Player.CurrPos.X - 1 || x == Managers.Game.Player.CurrPos.X + 1) &&
+                                    (y == Managers.Game.Player.CurrPos.Y || y == Managers.Game.Player.CurrPos.Y - 1 || y == Managers.Game.Player.CurrPos.Y + 1))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                }
+                                else
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Black;
+                                }
                             }
                             else
                             {
@@ -470,7 +478,15 @@ namespace Project_Pixel.Manager.Contents
                                      IsTileType(x, y, MonsterTile.PocketMouse) ||
                                      IsTileType(x, y, MonsterTile.Skeleton))
                             {
-                                Console.ForegroundColor = ConsoleColor.Black;
+                                if ((x == Managers.Game.Player.CurrPos.X || x == Managers.Game.Player.CurrPos.X - 1 || x == Managers.Game.Player.CurrPos.X + 1) &&
+                                    (y == Managers.Game.Player.CurrPos.Y || y == Managers.Game.Player.CurrPos.Y - 1 || y == Managers.Game.Player.CurrPos.Y + 1))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                }
+                                else
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Black;
+                                }
                             }
                             else
                             {
@@ -528,10 +544,11 @@ namespace Project_Pixel.Manager.Contents
                   ref Maps[Managers.Game.Player.PrevPos.X, Managers.Game.Player.PrevPos.Y]);
 
                 // 몬스터 움직임
-                for(int i = 0; i < Managers.Game.Monsters.Length; i++)
+                for (int i = 0; i < Managers.Game.Monsters.Length; i++)
                 {
                     if (!Managers.Game.Monsters[i].IsPlayerInSight())
-                    {   // 시야에 없으면 자유 이동
+                    {
+                        // 시야에 없으면 자유 이동
                         Managers.Game.Monsters[i].Direct = (Direct)random.Next(0, 4);
 
                         if (IsMove(Managers.Game.Monsters[i]))
@@ -539,7 +556,15 @@ namespace Project_Pixel.Manager.Contents
                             Util.Swap(ref Maps[Managers.Game.Monsters[i].CurrPos.X, Managers.Game.Monsters[i].CurrPos.Y],
                                 ref Maps[Managers.Game.Monsters[i].PrevPos.X, Managers.Game.Monsters[i].PrevPos.Y]);
                         }
-                    }          
+                    }
+                    else
+                    {
+                        if (IsAdjacentToPlayer(Managers.Game.Monsters[i]))
+                        {
+                            Managers.UI.Print_GameLog($"{Managers.Game.Monsters[i].MonsterType} 공격!                    ");
+                            Managers.Game.Player.OnDamaged(Managers.Game.Monsters[i]);
+                        }
+                    }
                 }
             }
 
@@ -577,6 +602,15 @@ namespace Project_Pixel.Manager.Contents
             PrintMap();
         }
 
+        private bool IsAdjacentToPlayer(Character character)
+        {
+            int dx = Math.Abs(character.CurrPos.X - Managers.Game.Player.CurrPos.X);
+            int dy = Math.Abs(character.CurrPos.Y - Managers.Game.Player.CurrPos.Y);
+
+            return (dx <= 1 && dy <= 1);
+        }
+
+
         private bool IsMove(Character target)
         {
             int[] dirX = { 0, 0, 1, -1 };        // X 방향 좌표
@@ -584,6 +618,12 @@ namespace Project_Pixel.Manager.Contents
 
             target.PrevPos.X = target.CurrPos.X;
             target.PrevPos.Y = target.CurrPos.Y;
+
+            if (target.CurrPos.X + dirX[(int)target.Direct] == Managers.Game.Player.CurrPos.X &&
+                target.CurrPos.Y + dirY[(int)target.Direct] == Managers.Game.Player.CurrPos.Y)
+            {
+                return false;
+            }
 
             if (IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], MonsterTile.Slime) ||
                 IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], MonsterTile.PocketMouse) ||

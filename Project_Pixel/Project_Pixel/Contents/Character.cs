@@ -61,7 +61,7 @@ namespace Project_Pixel.Contents
             MyDebuffs.Remove(new Debuff(debuff));
         }
 
-        public void OnDamaged(Character attacker)
+        public virtual void OnDamaged(Character attacker)
         {
             Random random = new Random();
             int critical = random.Next(0, 101);
