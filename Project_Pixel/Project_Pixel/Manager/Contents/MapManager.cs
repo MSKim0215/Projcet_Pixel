@@ -132,7 +132,7 @@ namespace Project_Pixel.Manager.Contents
                         }
 
                         Managers.Game.Monsters[i].CurrPos = new Position(rooms[randomIndex].SubPosition.X, rooms[randomIndex].SubPosition.Y);
-                        //FindPath(Managers.Game.Monsters[i].CurrPos, Managers.Game.Player.CurrPos);
+                        //PathManager.FindPath(Managers.Game.Monsters[i].CurrPos, Managers.Game.Player.CurrPos);
                     }
 
                     PrintMap();
@@ -393,6 +393,14 @@ namespace Project_Pixel.Manager.Contents
                         continue;
                     }
 
+                    if (Maps[x,y] == Managers.UI.PathPattern)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.Write(Maps[x, y]);
+                        Console.ResetColor();
+                        continue;
+                    }
+
                     if (Maps[x, y] == "☆")
                     {
                         Maps[x, y] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
@@ -528,9 +536,6 @@ namespace Project_Pixel.Manager.Contents
                 // 이미지 처리
                 Util.Swap(ref Maps[Managers.Game.Player.CurrPos.X, Managers.Game.Player.CurrPos.Y],
                   ref Maps[Managers.Game.Player.PrevPos.X, Managers.Game.Player.PrevPos.Y]);
-
-                // TODO TEST: 중독
-                //Managers.Game.Player.OnDebuffDamage(DebuffType.Starvation);
             }
 
             // TODO: 방문 체크 (방)
@@ -563,6 +568,11 @@ namespace Project_Pixel.Manager.Contents
                 {
                     VisitedMaps[corridorWallPos.X, corridorWallPos.Y] = true;
                 }
+            }
+
+            for(int i = 0; i < Managers.Game.Monsters.Length; i++)
+            {
+                PathManager.FindPath(Managers.Game.Monsters[i].CurrPos, Managers.Game.Player.CurrPos);
             }
 
             PrintMap();
@@ -624,32 +634,6 @@ namespace Project_Pixel.Manager.Contents
         {
             if (Maps[x, y] == Managers.UI.MonsterPatterns[(int)type]) return true;
             return false;
-        }
-
-        private Room GetClosestRoom(Room myRoom)
-        {
-            Room closestRoom = null;
-            int closestDistance = int.MaxValue;
-
-            foreach (Room room in rooms)
-            {
-                if (myRoom == room) continue;
-
-                int distance = Math.Abs(room.CenterPosition.X - myRoom.Position.X) + Math.Abs(room.CenterPosition.Y - myRoom.Position.Y);
-
-                if (distance < closestDistance && room.partnerRoom == null)
-                {
-                    closestRoom = room;
-                    closestDistance = distance;
-                }
-            }
-
-            if(closestRoom != null)
-            {
-                closestRoom.partnerRoom = myRoom;
-            }
-
-            return closestRoom;
         }
     }
 }

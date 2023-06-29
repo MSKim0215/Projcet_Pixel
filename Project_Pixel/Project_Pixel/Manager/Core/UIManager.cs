@@ -18,6 +18,7 @@ namespace Threading.Manager
         public string[] PlayerPatterns { private set; get; } = { "▲", "▼", "▶", "◀" };
         public string[] NPCPatterns { private set; get; } = { "●" };
         public string[] MonsterPatterns { private set; get; } = { "슬", "쥐", "스" };
+        public string PathPattern { private set; get; } = "＠";
         // 슬라임, 쥐, 스켈레톤
 
         public void Init()

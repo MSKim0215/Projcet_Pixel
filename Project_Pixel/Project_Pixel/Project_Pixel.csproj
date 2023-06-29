@@ -52,8 +52,9 @@
     <Compile Include="Contents\Shop\Inventory.cs" />
     <Compile Include="Contents\Shop\Item.cs" />
     <Compile Include="Contents\Stat.cs" />
-    <Compile Include="Contents\Tile.cs" />
+    <Compile Include="Contents\Node.cs" />
     <Compile Include="Manager\Contents\MapManager.cs" />
+    <Compile Include="Manager\Contents\PathManager.cs" />
     <Compile Include="Manager\Core\Core.cs" />
     <Compile Include="Manager\Core\DataManager.cs" />
     <Compile Include="Manager\Core\GameManager.cs" />
