@@ -10,7 +10,7 @@ namespace Project_Pixel.Manager.Contents
 {
     public class PathManager
     {
-        public static void FindPath(Position start, Position end)
+        public static List<Node> FindPath(Position start, Position end)
         {
             List<Node> openList = new List<Node>();
             List<Node> closedList = new List<Node>();
@@ -34,10 +34,10 @@ namespace Project_Pixel.Manager.Contents
                     Node pathNode = currentNode;
                     while (pathNode != null)
                     {
-                        if (!IsPlayerTile(pathNode.Position) && !IsMonsterTile(pathNode.Position) && !IsNPCTile(pathNode.Position))
-                        {
-                            Managers.Game.MapManager.Maps[pathNode.Position.X, pathNode.Position.Y] = Managers.UI.PathPattern;
-                        }
+                        //if (!IsPlayerTile(pathNode.Position) && !IsMonsterTile(pathNode.Position) && !IsNPCTile(pathNode.Position))
+                        //{
+                        //    Managers.Game.MapManager.Maps[pathNode.Position.X, pathNode.Position.Y] = Managers.UI.PathPattern;
+                        //}
                         pathNode = pathNode.Parent;
                     }
                     break;
@@ -91,6 +91,7 @@ namespace Project_Pixel.Manager.Contents
                     }
                 }
             }
+            return closedList;
         }
 
         private static int CalculateHeuristic(int startX, int startY, int targetX, int targetY)

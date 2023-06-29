@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Threading.Manager;
 
 namespace Project_Pixel.Contents
 {
@@ -22,11 +23,36 @@ namespace Project_Pixel.Contents
 
     public class Monster : Character
     {
+        private List<Node> targetPath = new List<Node>();
+
         public MonsterType MonsterType { protected set; get; } = MonsterType.None;
+        public int SightRange { protected set; get; } = 5;
 
         protected Monster(MonsterType type) : base(CharacterType.Monster)
         {
             MonsterType = type;
+
+            CurrPos = new Position(0, 0);
+            PrevPos = new Position(0, 0);
+        }
+
+        public bool IsPlayerInSight()
+        {
+            bool isInXRange = Math.Abs(CurrPos.X - Managers.Game.Player.CurrPos.X) <= SightRange;
+            bool isInYRange = Math.Abs(CurrPos.Y - Managers.Game.Player.CurrPos.Y) <= SightRange;
+
+            if (isInXRange && isInYRange)
+            {
+                Managers.UI.Print_GameLog("플레이어가 몬스터의 시야 범위 내에 있습니다.");
+
+                targetPath = PathManager.FindPath(CurrPos, Managers.Game.Player.CurrPos);
+                
+
+
+                return true;
+            }
+
+            return false;
         }
     }
 

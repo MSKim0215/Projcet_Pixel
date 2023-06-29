@@ -132,7 +132,6 @@ namespace Project_Pixel.Manager.Contents
                         }
 
                         Managers.Game.Monsters[i].CurrPos = new Position(rooms[randomIndex].SubPosition.X, rooms[randomIndex].SubPosition.Y);
-                        //PathManager.FindPath(Managers.Game.Monsters[i].CurrPos, Managers.Game.Player.CurrPos);
                     }
 
                     PrintMap();
@@ -393,14 +392,6 @@ namespace Project_Pixel.Manager.Contents
                         continue;
                     }
 
-                    if (Maps[x,y] == Managers.UI.PathPattern)
-                    {
-                        Console.ForegroundColor = ConsoleColor.DarkRed;
-                        Console.Write(Maps[x, y]);
-                        Console.ResetColor();
-                        continue;
-                    }
-
                     if (Maps[x, y] == "☆")
                     {
                         Maps[x, y] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
@@ -424,7 +415,6 @@ namespace Project_Pixel.Manager.Contents
                                 x == Managers.Game.Peddler.CurrPos.X && y == Managers.Game.Peddler.CurrPos.Y)
                             {
                                 Console.ForegroundColor = ConsoleColor.DarkGreen;
-                                Console.Write(Maps[x, y]);
                             }
                             else if (IsTileType(x, y, MonsterTile.Slime) ||
                                      IsTileType(x, y, MonsterTile.PocketMouse) ||
@@ -432,19 +422,19 @@ namespace Project_Pixel.Manager.Contents
                             {
                                 // Character에 따라 다른 색상 적용
                                 Console.ForegroundColor = ConsoleColor.Red; // 예시로 빨간색을 사용
-                                Console.Write(Maps[x, y]);
                             }
                             else
                             {
                                 Console.ForegroundColor = ConsoleColor.White;
-                                Console.Write(Maps[x, y]);
                             }
+                            Console.Write(Maps[x, y]);
                         }
                         else
                         {
                             Console.ForegroundColor = ConsoleColor.DarkGray;
                             Console.Write(Maps[x, y]);
                         }
+                        Console.ResetColor();
                     }
                     else
                     {
@@ -457,42 +447,24 @@ namespace Project_Pixel.Manager.Contents
                                      IsTileType(x, y, MonsterTile.Skeleton))
                             {
                                 // Character에 따라 다른 색상 적용
-                                Console.ForegroundColor = ConsoleColor.Red; // 예시로 빨간색을 사용
-                                Console.Write(Maps[x, y]);
+                                Console.ForegroundColor = ConsoleColor.Red;
                             }
                             else
                             {
                                 Console.ForegroundColor = ConsoleColor.White;
-                                Console.Write(Maps[x, y]);
                             }
+                            Console.Write(Maps[x, y]);
                         }
                         else
                         {
                             Console.ForegroundColor = ConsoleColor.DarkGray;
                             Console.Write(Maps[x, y]);
                         }
+                        Console.ResetColor();
                     }
-                    Console.ResetColor();
                 }
             }
         }
-
-
-        private List<int> GetRoomInsideMonsterIndex(Room currentRoom, Position pos)
-        {
-            List<int> indexList = new List<int>();
-
-            for (int i = 0; i < Managers.Game.Monsters.Length; i++)
-            {
-                if (currentRoom.ContainsPosition(Managers.Game.Monsters[i].CurrPos) &&
-                    pos.X == Managers.Game.Monsters[i].CurrPos.X && pos.Y == Managers.Game.Monsters[i].CurrPos.Y)
-                {
-                    indexList.Add(i);
-                }
-            }
-            return indexList;
-        }
-
 
         private Room GetRoomAtPosition(Position pos)
         {
@@ -528,7 +500,7 @@ namespace Project_Pixel.Manager.Contents
             Managers.Game.Player.Direct = (Direct)dir;
             Maps[Managers.Game.Player.CurrPos.X, Managers.Game.Player.CurrPos.Y] = Managers.UI.PlayerPatterns[dir];
 
-            if (IsMove(Managers.Game.Player.CurrPos, Managers.Game.Player.PrevPos, dir))
+            if (IsMove(Managers.Game.Player))
             {
                 // 배고픔 수치 다운
                 Managers.Game.Player.OnAdjustHunger();
@@ -536,6 +508,21 @@ namespace Project_Pixel.Manager.Contents
                 // 이미지 처리
                 Util.Swap(ref Maps[Managers.Game.Player.CurrPos.X, Managers.Game.Player.CurrPos.Y],
                   ref Maps[Managers.Game.Player.PrevPos.X, Managers.Game.Player.PrevPos.Y]);
+
+                // 몬스터 움직임
+                for(int i = 0; i < Managers.Game.Monsters.Length; i++)
+                {
+                    if (!Managers.Game.Monsters[i].IsPlayerInSight())
+                    {   // 시야에 없으면 자유 이동
+                        Managers.Game.Monsters[i].Direct = (Direct)random.Next(0, 4);
+
+                        if (IsMove(Managers.Game.Monsters[i]))
+                        {
+                            Util.Swap(ref Maps[Managers.Game.Monsters[i].CurrPos.X, Managers.Game.Monsters[i].CurrPos.Y],
+                                ref Maps[Managers.Game.Monsters[i].PrevPos.X, Managers.Game.Monsters[i].PrevPos.Y]);
+                        }
+                    }          
+                }
             }
 
             // TODO: 방문 체크 (방)
@@ -570,37 +557,31 @@ namespace Project_Pixel.Manager.Contents
                 }
             }
 
-            for(int i = 0; i < Managers.Game.Monsters.Length; i++)
+            for (int i = 0; i < Managers.Game.Monsters.Length; i++)
             {
-                PathManager.FindPath(Managers.Game.Monsters[i].CurrPos, Managers.Game.Player.CurrPos);
+               ;
             }
-
             PrintMap();
         }
 
-
-        private bool IsMove(Position curPos, Position prevPos, int dir)
+        private bool IsMove(Character target)
         {
-            if (dir == -1) return false;
-
             int[] dirX = { 0, 0, 1, -1 };        // X 방향 좌표
             int[] dirY = { -1, 1, 0, 0 };        // Y 방향 좌표
 
-            prevPos.X = curPos.X;
-            prevPos.Y = curPos.Y;
+            target.PrevPos.X = target.CurrPos.X;
+            target.PrevPos.Y = target.CurrPos.Y;
 
-            // TODO: 상인 판정
-            if(IsTileType(curPos.X + dirX[dir], curPos.Y + dirY[dir], NPCTile.Paddler))
-            {
+            if(IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], NPCTile.Paddler))
+            {   
                 // TODO: 거래 진행
                 return false;
             }
 
-            // TODO: 벽 판정
-            if (!IsTileType(curPos.X + dirX[dir], curPos.Y + dirY[dir], TileTypes.Wall))
-            {
-                curPos.X += dirX[dir];
-                curPos.Y += dirY[dir];
+            if (!IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], TileTypes.Wall))
+            {   // 벽이 아니면 이동
+                target.CurrPos.X += dirX[(int)target.Direct];
+                target.CurrPos.Y += dirY[(int)target.Direct];
                 return true;
             }
             return false;
