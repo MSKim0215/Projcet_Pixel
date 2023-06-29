@@ -364,8 +364,8 @@ namespace Project_Pixel.Manager.Contents
         {
             foreach (Room room in rooms)
             {
-                if (position.X > room.Position.X && position.X < room.Position.X + room.Width - 1 &&
-                    position.Y > room.Position.Y && position.Y < room.Position.Y + room.Height - 1)
+                if (position.X > room.Position.X - 1 && position.X < room.Position.X + room.Width &&
+                    position.Y > room.Position.Y - 1 && position.Y < room.Position.Y + room.Height)
                 {
                     return true;
                 }
