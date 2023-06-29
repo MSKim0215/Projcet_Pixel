@@ -24,8 +24,26 @@ namespace Project_Pixel.Contents
     public class Monster : Character
     {
         private List<Node> targetPath = new List<Node>();
+        private MonsterType monsterType = MonsterType.None;
+        private string name;
 
-        public MonsterType MonsterType { protected set; get; } = MonsterType.None;
+
+        public MonsterType MonsterType
+        {
+            get => monsterType;
+            set
+            {
+                monsterType = value;
+
+                switch(monsterType)
+                {
+                    case MonsterType.Slime: name = "슬라임"; break;
+                    case MonsterType.PocketMouse: name = "주머니 쥐"; break;
+                    case MonsterType.Skeleton: name = "스켈레톤"; break;
+                }
+            }
+        }
+
         public int SightRange { protected set; get; } = 5;
 
         protected Monster(MonsterType type) : base(CharacterType.Monster)
@@ -38,22 +56,48 @@ namespace Project_Pixel.Contents
 
         public bool IsPlayerInSight()
         {
-            bool isInXRange = Math.Abs(CurrPos.X - Managers.Game.Player.CurrPos.X) <= SightRange;
-            bool isInYRange = Math.Abs(CurrPos.Y - Managers.Game.Player.CurrPos.Y) <= SightRange;
+            var playerPos = Managers.Game.Player.CurrPos;
+            bool isInXRange = Math.Abs(CurrPos.X - playerPos.X) <= SightRange;
+            bool isInYRange = Math.Abs(CurrPos.Y - playerPos.Y) <= SightRange;
 
             if (isInXRange && isInYRange)
             {
-                Managers.UI.Print_GameLog("플레이어가 몬스터의 시야 범위 내에 있습니다.");
+                if (IsThereAWallBetween(CurrPos, playerPos))
+                {
+                    return false;
+                }
 
-                targetPath = PathManager.FindPath(CurrPos, Managers.Game.Player.CurrPos);
-                
+                Managers.UI.Print_GameLog($"{name}을 만났습니다.                 ");
 
+                targetPath = PathManager.FindPath(CurrPos, playerPos);
 
                 return true;
             }
-
             return false;
         }
+
+        private bool IsThereAWallBetween(Position start, Position end)
+        {
+            int minX = Math.Min(start.X, end.X); // 시작 위치와 끝 위치의 X 좌표 중 작은 값
+            int maxX = Math.Max(start.X, end.X); // 시작 위치와 끝 위치의 X 좌표 중 큰 값
+            int minY = Math.Min(start.Y, end.Y); // 시작 위치와 끝 위치의 Y 좌표 중 작은 값
+            int maxY = Math.Max(start.Y, end.Y); // 시작 위치와 끝 위치의 Y 좌표 중 큰 값
+
+            // 정사각형 영역 내의 모든 좌표를 확인합니다.
+            for (int x = minX; x <= maxX; x++)
+            {
+                for (int y = minY; y <= maxY; y++)
+                {
+                    // 현재 좌표에 벽이 있는지 확인합니다.
+                    if (Managers.Game.MapManager.Maps[x, y] == Managers.UI.TilePatterns[(int)TileTypes.Wall])
+                    {
+                        return true; // 시작 위치와 끝 위치 사이에 벽이 있습니다.
+                    }
+                }
+            }
+            return false; // 시작 위치와 끝 위치 사이에 벽이 없습니다.
+        }
+
     }
 
     public class Slime : Monster
