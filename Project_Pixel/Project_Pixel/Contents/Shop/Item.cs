@@ -35,12 +35,12 @@ namespace Project_Pixel.Contents.Shop
     {
         public bool Equals(Item x, Item y)
         {
-            return x.Info.Name == y.Info.Name;
+            return x.Info.Stat.Name == y.Info.Stat.Name;
         }
 
         public int GetHashCode(Item obj)
         {
-            return obj.Info.Name.GetHashCode();
+            return obj.Info.Stat.Name.GetHashCode();
         }
     }
 }

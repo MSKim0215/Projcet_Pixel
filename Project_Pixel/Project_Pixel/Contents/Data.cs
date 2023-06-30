@@ -103,7 +103,7 @@ namespace Project_Pixel.Contents
                     {
                         return $"치명타 확률 +{Stat.CriChance}%   치명타 데미지 +{Stat.CriDamageValue}%";
                     }
-                case "탈출 주문서":
+                case "탈출 스크롤":
                     {
                         return $"던전 어딘가로 이동합니다.";
                     }

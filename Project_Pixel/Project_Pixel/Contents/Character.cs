@@ -24,7 +24,6 @@ namespace Project_Pixel.Contents
         protected Direct direct;
         protected CharacterType characterType = CharacterType.None;
  
-        public Stat Status { set; get; }
         public Position CurrPos { set; get; }
         public Position PrevPos { set; get; }
 
@@ -42,11 +41,6 @@ namespace Project_Pixel.Contents
         protected Character(CharacterType type)
         {
             characterType = type;
-        }
-
-        public void SetStatus(Stat stat)
-        {
-            Status = stat;
         }
 
         protected void SetDebuff(DebuffType debuff)
@@ -70,13 +64,5 @@ namespace Project_Pixel.Contents
                 }
             }
         }
-
-        public virtual int GetNowHp() => Status.NowHp;
-        public virtual int GetMaxHp() => Status.MaxHp;
-        public virtual int GetPower() => Status.Power;
-        public virtual int GetDefense() => Status.Defense;
-        public virtual float GetCriChance() => Status.CriChance;
-        public virtual float GetCriDamageValue() => Status.CriDamageValue;
-        public virtual bool IsDead() => Status.NowHp <= 0;
     }
 }

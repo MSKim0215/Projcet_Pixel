@@ -41,6 +41,7 @@ namespace Threading.Manager
                         Managers.Data.playerStatData.Power,
                         Managers.Data.playerStatData.Defense,
                         Managers.Data.playerStatData.CriChance,
+                        Managers.Data.playerStatData.StartGold,
                         Managers.Data.playerStatData.HungryMax,
                         Managers.Data.playerStatData.CriDamageValue);      // 체력, 공격력, 방어력, 치명타 확률   
             }

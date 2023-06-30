@@ -20,7 +20,7 @@ namespace Project_Pixel.Contents
     public class Player : Character, IPlayerAttack
     {
         public PlayerInventory Inven { private set; get; }
-        public new PlayerStat Status { private set; get; }
+        public PlayerStat Status { private set; get; }
 
         public Player() : base(CharacterType.Player)
         {
@@ -41,7 +41,7 @@ namespace Project_Pixel.Contents
         {
             Random random = new Random();
             int critical = random.Next(0, 101);
-            int damage = (attacker.GetPower() - Status.Defense <= 0) ? 0 : attacker.GetPower() - Status.Defense;
+            int damage = (attacker.Status.Power - Status.Defense <= 0) ? 0 : attacker.Status.Power - Status.Defense;
 
             if (critical <= attacker.Status.CriChance)
             {
@@ -49,9 +49,9 @@ namespace Project_Pixel.Contents
             }
 
             Status.NowHp -= damage;
-            Managers.UI.Print_GameLog($"{attacker.Name} {Math.Max(0, damage)} 피해를 받았습니다.              ");
+            Managers.UI.Print_GameLog($"{attacker.Status.Name} {Math.Max(0, damage)} 피해를 받았습니다.              ");
 
-            if (IsDead())
+            if (Status.NowHp <= 0)
             {
                 OnDead();
             }
@@ -61,7 +61,7 @@ namespace Project_Pixel.Contents
         {
             Status.NowHp -= damage;
 
-            if (IsDead())
+            if (Status.NowHp <= 0)
             {
                 OnDead();
             }
@@ -155,12 +155,5 @@ namespace Project_Pixel.Contents
 
         public int GetHungry() => Status.Hungry;
         public int GetMaxHungry() => Status.HungryMax; 
-        public override int GetNowHp() => Status.NowHp;
-        public override int GetMaxHp() => Status.MaxHp;
-        public override int GetPower() => Status.Power;
-        public override int GetDefense() => Status.Defense;
-        public override float GetCriChance() => Status.CriChance;
-        public override float GetCriDamageValue() => Status.CriDamageValue;
-        public override bool IsDead() => Status.NowHp <= 0;
     }
 }

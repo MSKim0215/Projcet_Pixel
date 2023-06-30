@@ -30,7 +30,7 @@ namespace Project_Pixel.Contents
         protected MonsterType monsterType = MonsterType.None;
         protected bool isMeet = false;
         
-        public string Name { protected set; get; }
+        public MonsterStat Status { protected set; get; }
         public MonsterType MonsterType { private set; get; }
         public int SightRange { protected set; get; } = 5;
 
@@ -60,7 +60,7 @@ namespace Project_Pixel.Contents
                 if (!isMeet)
                 {
                     isMeet = true;
-                    Managers.UI.Print_GameLog($"{Name}을 만났습니다.              ");
+                    Managers.UI.Print_GameLog($"{Status.Name}을 만났습니다.              ");
                 }
 
                 targetPath = PathManager.FindPath(CurrPos, playerPos, SightRange + 1);
@@ -137,7 +137,7 @@ namespace Project_Pixel.Contents
 
         public virtual void Attack(Player player)
         {
-            Managers.UI.Print_GameLog($"{Name} 공격!                    ");
+            Managers.UI.Print_GameLog($"{Status.Name} 공격!                    ");
             player.OnDamaged(this);
         }
 
@@ -145,7 +145,7 @@ namespace Project_Pixel.Contents
         {
             Random random = new Random();
             int critical = random.Next(0, 101);
-            int damage = (attacker.GetPower() - Status.Defense <= 0) ? 0 : attacker.GetPower() - Status.Defense;
+            int damage = (attacker.Status.Power - Status.Defense <= 0) ? 0 : attacker.Status.Power - Status.Defense;
 
             if (critical <= attacker.Status.CriChance)
             {
@@ -155,9 +155,9 @@ namespace Project_Pixel.Contents
             Status.NowHp -= damage;
 
             Managers.UI.Print_GameLog($"플레이어에게 {Math.Max(0, damage)} 피해를 받았습니다.              ");
-            Managers.UI.Print_GameLog($"{Name}의 남은 체력: {Status.NowHp}              ");
+            Managers.UI.Print_GameLog($"{Status.Name}의 남은 체력: {Status.NowHp}              ");
 
-            if (IsDead())
+            if (Status.NowHp <= 0)
             {
                 OnDead();
             }
@@ -188,9 +188,9 @@ namespace Project_Pixel.Contents
             Status.NowHp -= damage;
 
             Managers.UI.Print_GameLog($"상태이상 {Math.Max(0,damage)} 피해를 받았습니다.              ");
-            Managers.UI.Print_GameLog($"{Name}의 남은 체력: {Status.NowHp}              ");
+            Managers.UI.Print_GameLog($"{Status.Name}의 남은 체력: {Status.NowHp}              ");
 
-            if (IsDead())
+            if (Status.NowHp <= 0)
             {
                 OnDead();
             }
@@ -199,7 +199,7 @@ namespace Project_Pixel.Contents
         private void OnDead()
         {
             Status.NowHp = 0;
-            Managers.UI.Print_GameLog($"{Name}가 죽었습니다.              ");
+            Managers.UI.Print_GameLog($"{Status.Name}가 죽었습니다.              ");
 
             Managers.Game.MapManager.Maps[CurrPos.X, CurrPos.Y] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
             Managers.Game.Monsters.Remove(this);
@@ -233,7 +233,7 @@ namespace Project_Pixel.Contents
             Random rand = new Random();
             if (rand.Next(0, 101) < 30)
             {
-                Managers.Game.Player.OnDebuffDamage(Debuff_System.DebuffType.Bleeding);
+                Managers.Game.Player.OnDebuffDamage(DebuffType.Bleeding);
             }
         }
     }

@@ -62,19 +62,19 @@ namespace Threading.Manager
             Console.Write($"│{"배고픔".PadLeft(6, ' ')}: {$"{player.GetHungry()} / {player.GetMaxHungry()}".PadRight(13, ' ')}│");
 
             Console.SetCursorPosition(startX, startY + 4);
-            Console.Write($"│{"체력".PadLeft(5, ' ')}: {$"{player.GetNowHp()} / {player.GetMaxHp()}".PadRight(15, ' ')}│");
+            Console.Write($"│{"체력".PadLeft(5, ' ')}: {$"{player.Status.NowHp} / {player.Status.MaxHp}".PadRight(15, ' ')}│");
 
             Console.SetCursorPosition(startX, startY + 6);
-            Console.Write($"│{"공격력".PadLeft(6, ' ')}: {$"{player.GetPower()}".PadRight(13, ' ')}│");
+            Console.Write($"│{"공격력".PadLeft(6, ' ')}: {$"{player.Status.Power}".PadRight(13, ' ')}│");
 
             Console.SetCursorPosition(startX, startY + 8);
-            Console.Write($"│{"방어력".PadLeft(6, ' ')}: {$"{player.GetDefense()}".PadRight(13, ' ')}│");
+            Console.Write($"│{"방어력".PadLeft(6, ' ')}: {$"{player.Status.Defense}".PadRight(13, ' ')}│");
 
             Console.SetCursorPosition(startX, startY + 10);
-            Console.Write($"│{"치명타 확률".PadLeft(9, ' ')}: {$"{player.GetCriChance()}%".PadRight(8, ' ')}│");
+            Console.Write($"│{"치명타 확률".PadLeft(9, ' ')}: {$"{player.Status.CriChance}%".PadRight(8, ' ')}│");
 
             Console.SetCursorPosition(startX, startY + 12);
-            Console.Write($"│{"치명타 데미지".PadLeft(10, ' ')}: {$"{player.GetCriDamageValue() * 100}%".PadRight(6, ' ')}│");
+            Console.Write($"│{"치명타 데미지".PadLeft(10, ' ')}: {$"{player.Status.CriDamageValue * 100}%".PadRight(6, ' ')}│");
 
             Console.SetCursorPosition(startX, startY + 14);
             Console.Write($"└{"".PadRight(24, '─')}┘");

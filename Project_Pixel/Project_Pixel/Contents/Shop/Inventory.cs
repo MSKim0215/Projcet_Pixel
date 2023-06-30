@@ -30,7 +30,7 @@ namespace Project_Pixel.Contents.Shop
 
         public void UseItem(Item item, int count = -1)
         {
-            MyItems.Find(x => x.Info.Type == item.Info.Type).AddCount(count);
+            MyItems.Find(x => x.Info.Stat.Name == item.Info.Stat.Name).AddCount(count);
         }
     }
 
