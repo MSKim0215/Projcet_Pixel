@@ -36,11 +36,11 @@ namespace Project_Pixel.Contents.Shop
 
     public class PlayerInventory : Inventory
     {
-        public int Gold { private set; get; } = 5000;      // 소지금액
+        public int Gold { private set; get; }   // 소지금액
 
-        public PlayerInventory()
+        public PlayerInventory(int gold)
         {
-
+            Gold = gold;
         }
 
         public void ResumeGold(int gold)

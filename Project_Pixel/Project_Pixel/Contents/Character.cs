@@ -76,7 +76,6 @@ namespace Project_Pixel.Contents
         public virtual int GetPower() => Status.Power;
         public virtual int GetDefense() => Status.Defense;
         public virtual float GetCriChance() => Status.CriChance;
-        public virtual float GetCriChanceMax() => Status.CriChanceMax;
         public virtual float GetCriDamageValue() => Status.CriDamageValue;
         public virtual bool IsDead() => Status.NowHp <= 0;
     }

@@ -24,10 +24,11 @@ namespace Project_Pixel.Contents
 
         public Player() : base(CharacterType.Player)
         {
-            Inven = new PlayerInventory();
             CurrPos = new Position(0, 0);
             PrevPos = new Position(0, 0);
-            Status = new PlayerStat(50, 3, 0, 10);      // 체력, 공격력, 방어력, 치명타 확률      
+
+            Status = Managers.Data.GetPlayerStatData();    
+            Inven = new PlayerInventory(Status.StartGold);
         }
 
         public void Attack(Monster monster)
@@ -159,7 +160,6 @@ namespace Project_Pixel.Contents
         public override int GetPower() => Status.Power;
         public override int GetDefense() => Status.Defense;
         public override float GetCriChance() => Status.CriChance;
-        public override float GetCriChanceMax() => Status.CriChanceMax;
         public override float GetCriDamageValue() => Status.CriDamageValue;
         public override bool IsDead() => Status.NowHp <= 0;
     }

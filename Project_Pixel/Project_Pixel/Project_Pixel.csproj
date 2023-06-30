@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Contents\Character.cs" />
+    <Compile Include="Contents\Data.cs" />
     <Compile Include="Contents\Debuff System\Debuff.cs" />
     <Compile Include="Contents\Monster.cs" />
     <Compile Include="Contents\NonPlayer.cs" />

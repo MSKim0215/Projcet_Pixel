@@ -29,8 +29,8 @@
         public override void Start()
         {
             UI.Init();
+            Data.Init();
             Game.Init();
-            //Data.Init();
 
             base.Start();
         }

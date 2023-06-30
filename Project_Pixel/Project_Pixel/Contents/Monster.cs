@@ -26,29 +26,12 @@ namespace Project_Pixel.Contents
 
     public class Monster : Character, IMonsterAttack
     {
-        private List<Node> targetPath = new List<Node>();
-        private MonsterType monsterType = MonsterType.None;
-        private bool isMeet = false;
+        protected List<Node> targetPath = new List<Node>();
+        protected MonsterType monsterType = MonsterType.None;
+        protected bool isMeet = false;
         
         public string Name { protected set; get; }
-
-
-        public MonsterType MonsterType
-        {
-            get => monsterType;
-            set
-            {
-                monsterType = value;
-
-                switch(monsterType)
-                {
-                    case MonsterType.Slime: Name = "슬라임"; break;
-                    case MonsterType.PocketMouse: Name = "주머니 쥐"; break;
-                    case MonsterType.Skeleton: Name = "스켈레톤"; break;
-                }
-            }
-        }
-
+        public MonsterType MonsterType { private set; get; }
         public int SightRange { protected set; get; } = 5;
 
         protected Monster(MonsterType type) : base(CharacterType.Monster)
@@ -57,6 +40,8 @@ namespace Project_Pixel.Contents
 
             CurrPos = new Position(0, 0);
             PrevPos = new Position(0, 0);
+
+            Status = Managers.Data.GetMonsterStatData(MonsterType);
         }
 
         public bool IsPlayerInSight()
@@ -202,7 +187,7 @@ namespace Project_Pixel.Contents
         {
             Status.NowHp -= damage;
 
-            Managers.UI.Print_GameLog($"상태이상 {damage} 피해를 받았습니다.              ");
+            Managers.UI.Print_GameLog($"상태이상 {Math.Max(0,damage)} 피해를 받았습니다.              ");
             Managers.UI.Print_GameLog($"{Name}의 남은 체력: {Status.NowHp}              ");
 
             if (IsDead())
@@ -223,11 +208,7 @@ namespace Project_Pixel.Contents
 
     public class Slime : Monster
     {
-        public Slime(): base(MonsterType.Slime)
-        {
-            MonsterType = MonsterType.Slime;
-            SetStatus(new Stat(20, 1, 0, 10));        // 체력, 공격력, 방어력, 치명타 확률
-        }
+        public Slime(): base(MonsterType.Slime) { }
 
         public override void Attack(Player player)
         {
@@ -243,11 +224,7 @@ namespace Project_Pixel.Contents
 
     public class PocketMouse : Monster
     {
-        public PocketMouse() : base(MonsterType.PocketMouse)
-        {
-            MonsterType = MonsterType.PocketMouse;
-            SetStatus(new Stat(25, 2, 0, 10));        // 체력, 공격력, 방어력, 치명타 확률
-        }
+        public PocketMouse() : base(MonsterType.PocketMouse) { }
 
         public override void Attack(Player player)
         {
@@ -263,10 +240,6 @@ namespace Project_Pixel.Contents
    
     public class Skeleton : Monster
     {
-        public Skeleton() : base(MonsterType.Skeleton)
-        {
-            MonsterType = MonsterType.Skeleton;
-            SetStatus(new Stat(30, 2, 1, 5));        // 체력, 공격력, 방어력, 치명타 확률
-        }
+        public Skeleton() : base(MonsterType.Skeleton) { }
     }
 }
