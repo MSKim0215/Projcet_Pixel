@@ -32,7 +32,7 @@ namespace Project_Pixel.Contents
 
         public void Attack(Monster monster)
         {
-            Managers.UI.Print_GameLog("플레이어의 공격!");
+            Managers.UI.Print_GameLog("플레이어의 공격!              ");
             monster.OnDamaged(this);
         }
 
@@ -48,7 +48,7 @@ namespace Project_Pixel.Contents
             }
 
             Status.NowHp -= damage;
-            Managers.UI.Print_GameLog($"{attacker.Name} {damage} 피해를 받았습니다.");
+            Managers.UI.Print_GameLog($"{attacker.Name} {Math.Max(0, damage)} 피해를 받았습니다.              ");
 
             if (IsDead())
             {
@@ -69,7 +69,7 @@ namespace Project_Pixel.Contents
         private void OnDead()
         {
             Status.NowHp = 0;
-            Managers.UI.Print_GameLog($"플레이어가 죽었습니다.");
+            Managers.UI.Print_GameLog($"플레이어가 죽었습니다.              ");
 
             Managers.Game.MapManager.Maps[CurrPos.X, CurrPos.Y] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
         }
