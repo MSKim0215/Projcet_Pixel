@@ -1,5 +1,6 @@
 ﻿using Project_Pixel.Contents;
 using Project_Pixel.Contents.Debuff_System;
+using Project_Pixel.Contents.Shop;
 using Project_Pixel.Utils;
 using System;
 using System.Collections.Generic;
@@ -115,7 +116,10 @@ namespace Project_Pixel.Manager.Contents
                     {
                         randomIndex = random.Next(0, rooms.Count);
                         rooms[randomIndex].RefreshSubPosition();
-                        while (rooms[randomIndex].SubPosition == Managers.Game.Player.CurrPos)
+                        while (rooms[randomIndex].SubPosition == Managers.Game.Player.CurrPos &&
+                            (Maps[rooms[randomIndex].SubPosition.X, rooms[randomIndex].SubPosition.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.Slime] ||
+                            Maps[rooms[randomIndex].SubPosition.X, rooms[randomIndex].SubPosition.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.PocketMouse] ||
+                            Maps[rooms[randomIndex].SubPosition.X, rooms[randomIndex].SubPosition.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.Skeleton]))
                         {
                             randomIndex = random.Next(0, rooms.Count);
                         }
@@ -598,7 +602,7 @@ namespace Project_Pixel.Manager.Contents
 
                 case ConsoleKey.D1: UsePotion(); break;
                 case ConsoleKey.D2: UseFood(); break;
-                case ConsoleKey.D3: Managers.UI.Print_GameLog("3번 누름"); break;
+                case ConsoleKey.D3: UseScroll(); break;
                 case ConsoleKey.Spacebar: AttackEvent(); break;
             }
 
@@ -714,14 +718,49 @@ namespace Project_Pixel.Manager.Contents
 
         private void UsePotion()
         {
-            Managers.UI.Print_GameLog("플레이어가 체력이 5 회복 되었습니다.");
-            Managers.Game.Player.OnHealing(5);
+            Managers.UI.Print_GameLog($"플레이어가 체력이 {Managers.Data.itemStatDatas[ItemType.RedPotion].MaxHp} 회복 되었습니다.");
+            Managers.Game.Player.OnHealing(Managers.Data.itemStatDatas[ItemType.RedPotion].MaxHp);
         }
 
         private void UseFood()
         {
-            Managers.UI.Print_GameLog("플레이어가 배고픔이 5 회복 되었습니다.");
-            Managers.Game.Player.OnAdjustHunger(5);
+            Managers.UI.Print_GameLog($"플레이어가 배고픔이 {Managers.Data.itemStatDatas[ItemType.Food].Hungry} 회복 되었습니다.");
+            Managers.Game.Player.OnAdjustHunger(Managers.Data.itemStatDatas[ItemType.Food].Hungry);
+        }
+
+        private void UseScroll()
+        {
+            Managers.UI.Print_GameLog($"플레이어가 탈출 스크롤을 사용했습니다.");
+
+            int randomIndex = random.Next(0, rooms.Count);
+            rooms[randomIndex].RefreshSubPosition();
+            while (rooms[randomIndex].SubPosition == Managers.Game.Player.CurrPos &&
+                (Maps[rooms[randomIndex].SubPosition.X, rooms[randomIndex].SubPosition.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.Slime] ||
+                Maps[rooms[randomIndex].SubPosition.X, rooms[randomIndex].SubPosition.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.PocketMouse] ||
+                Maps[rooms[randomIndex].SubPosition.X, rooms[randomIndex].SubPosition.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.Skeleton]))
+            {
+                randomIndex = random.Next(0, rooms.Count);
+            }
+
+            Managers.Game.Player.PrevPos = Managers.Game.Player.CurrPos;
+            Maps[Managers.Game.Player.PrevPos.X, Managers.Game.Player.PrevPos.Y] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
+            Maps[rooms[randomIndex].SubPosition.X, rooms[randomIndex].SubPosition.Y] = Managers.UI.PlayerPatterns[(int)Managers.Game.Player.Direct];
+            Managers.Game.Player.CurrPos = new Position(rooms[randomIndex].SubPosition.X, rooms[randomIndex].SubPosition.Y);
+
+            // 방 이동 체크
+            Room currentRoom = GetRoomAtPosition(Managers.Game.Player.CurrPos);
+            if (currentRoom != null && !currentRoom.isVisited)
+            {
+                currentRoom.isVisited = true;
+
+                for (int y = currentRoom.Position.Y; y < currentRoom.Position.Y + currentRoom.Height; y++)
+                {
+                    for (int x = currentRoom.Position.X; x < currentRoom.Position.X + currentRoom.Width; x++)
+                    {
+                        VisitedMaps[x, y] = true;
+                    }
+                }
+            }
         }
 
         private int GetDirect(ConsoleKey key)
