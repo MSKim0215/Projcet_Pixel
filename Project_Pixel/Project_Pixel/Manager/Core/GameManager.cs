@@ -27,6 +27,7 @@ namespace Threading.Manager
             Managers.UI.Print_Inventory(Player);
             Managers.UI.Print_Log();
             Managers.UI.Print_Guide();
+            Managers.UI.Print_BaseGuide();
             Managers.UI.Print_Enter();
 
             MapManager.Generate();

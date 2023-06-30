@@ -435,15 +435,7 @@ namespace Project_Pixel.Manager.Contents
                                      IsTileType(x, y, MonsterTile.PocketMouse) ||
                                      IsTileType(x, y, MonsterTile.Skeleton))
                             {
-                                if ((x == Managers.Game.Player.CurrPos.X || x == Managers.Game.Player.CurrPos.X - 1 || x == Managers.Game.Player.CurrPos.X + 1) &&
-                                    (y == Managers.Game.Player.CurrPos.Y || y == Managers.Game.Player.CurrPos.Y - 1 || y == Managers.Game.Player.CurrPos.Y + 1))
-                                {
-                                    Console.ForegroundColor = ConsoleColor.Red;
-                                }
-                                else
-                                {
-                                    Console.ForegroundColor = ConsoleColor.Black;
-                                }
+                                Console.ForegroundColor = ConsoleColor.Black;
                             }
                             else
                             {
@@ -457,36 +449,46 @@ namespace Project_Pixel.Manager.Contents
                     {
                         Corridor currentCorridor = GetCorridorAtPosition(Managers.Game.Player.CurrPos);
 
-                        if(currentCorridor != null && currentCorridor.ContainsAround(new Position(x,y)))
+                        if(currentCorridor != null)
                         {
-                            if (IsTileType(x, y, MonsterTile.Slime) ||
-                                     IsTileType(x, y, MonsterTile.PocketMouse) ||
-                                     IsTileType(x, y, MonsterTile.Skeleton))
-                            {
-                                // Character에 따라 다른 색상 적용
-                                Console.ForegroundColor = ConsoleColor.Red;
+                            if(currentCorridor.ContainsAround(new Position(x,y)))
+                            {   // 벽은 흰색으로 칠하기 (시야 확보)
+                                if (IsTileType(x, y, MonsterTile.Slime) || IsTileType(x, y, MonsterTile.PocketMouse) || IsTileType(x, y, MonsterTile.Skeleton))
+                                {
+                                    // Character에 따라 다른 색상 적용
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                }
+                                else
+                                {
+                                    Console.ForegroundColor = ConsoleColor.White;
+                                }
+                            }
+                            else if(currentCorridor.ContainsPosition(new Position(x, y)))
+                            {   // 몬스터 처리
+                                if (IsTileType(x, y, MonsterTile.Slime) || IsTileType(x, y, MonsterTile.PocketMouse) || IsTileType(x, y, MonsterTile.Skeleton))
+                                {
+                                    // Character에 따라 다른 색상 적용
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                }
                             }
                             else
                             {
-                                Console.ForegroundColor = ConsoleColor.White;
+                                if (IsTileType(x, y, MonsterTile.Slime) || IsTileType(x, y, MonsterTile.PocketMouse) || IsTileType(x, y, MonsterTile.Skeleton))
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Black;
+                                }
+                                else
+                                {
+                                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                                }
                             }
                             Console.Write(Maps[x, y]);
                         }
                         else
                         {
-                            if (IsTileType(x, y, MonsterTile.Slime) ||
-                                     IsTileType(x, y, MonsterTile.PocketMouse) ||
-                                     IsTileType(x, y, MonsterTile.Skeleton))
+                            if (IsTileType(x, y, MonsterTile.Slime) || IsTileType(x, y, MonsterTile.PocketMouse) || IsTileType(x, y, MonsterTile.Skeleton))
                             {
-                                if ((x == Managers.Game.Player.CurrPos.X || x == Managers.Game.Player.CurrPos.X - 1 || x == Managers.Game.Player.CurrPos.X + 1) &&
-                                    (y == Managers.Game.Player.CurrPos.Y || y == Managers.Game.Player.CurrPos.Y - 1 || y == Managers.Game.Player.CurrPos.Y + 1))
-                                {
-                                    Console.ForegroundColor = ConsoleColor.Red;
-                                }
-                                else
-                                {
-                                    Console.ForegroundColor = ConsoleColor.Black;
-                                }
+                                Console.ForegroundColor = ConsoleColor.Black;
                             }
                             else
                             {
