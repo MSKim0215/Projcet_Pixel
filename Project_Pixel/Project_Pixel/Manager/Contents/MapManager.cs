@@ -528,10 +528,73 @@ namespace Project_Pixel.Manager.Contents
 
         public override void Update()
         {
-            char moveInput = Console.ReadKey(true).KeyChar;
-            int dir = GetDirect(moveInput);
+            ConsoleKeyInfo keyInput = Console.ReadKey(true);
+            GetKeyEvent(keyInput.Key);
+            PrintMap();
+        }
 
-            if (dir == -1) return;
+        private bool IsAdjacentToPlayer(Character character)
+        {
+            int dx = Math.Abs(character.CurrPos.X - Managers.Game.Player.CurrPos.X);
+            int dy = Math.Abs(character.CurrPos.Y - Managers.Game.Player.CurrPos.Y);
+
+            return (dx <= 1 && dy <= 1);
+        }   
+
+
+        private bool IsMove(Character target)
+        {
+            int[] dirX = { 0, 0, 1, -1 };        // X 방향 좌표
+            int[] dirY = { -1, 1, 0, 0 };        // Y 방향 좌표
+
+            target.PrevPos.X = target.CurrPos.X;
+            target.PrevPos.Y = target.CurrPos.Y;
+
+            if (target.CurrPos.X + dirX[(int)target.Direct] == Managers.Game.Player.CurrPos.X &&
+                target.CurrPos.Y + dirY[(int)target.Direct] == Managers.Game.Player.CurrPos.Y)
+            {
+                return false;
+            }
+
+            if (IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], MonsterTile.Slime) ||
+                IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], MonsterTile.PocketMouse) ||
+                IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], MonsterTile.Skeleton))
+            {
+                return false;
+            }
+
+            if (IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], NPCTile.Paddler))
+            {   
+                // TODO: 거래 진행
+                return false;
+            }
+
+            if (!IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], TileTypes.Wall))
+            {   // 벽이 아니면 이동
+                target.CurrPos.X += dirX[(int)target.Direct];
+                target.CurrPos.Y += dirY[(int)target.Direct];
+                return true;
+            }
+            return false;
+        }
+
+        private void GetKeyEvent(ConsoleKey key)
+        {
+            switch(key)
+            {
+                // 플레이어 이동 처리
+                case ConsoleKey.W: case ConsoleKey.S: case ConsoleKey.D: case ConsoleKey.A: MoveEvent(key); break;
+
+                case ConsoleKey.D1: Managers.UI.Print_GameLog("1번 누름"); break;
+                case ConsoleKey.D2: Managers.UI.Print_GameLog("2번 누름"); break;
+                case ConsoleKey.D3: Managers.UI.Print_GameLog("3번 누름"); break;
+                case ConsoleKey.Spacebar: Managers.UI.Print_GameLog("스페이스 누름"); break;
+            }
+        }
+
+        private void MoveEvent(ConsoleKey key)
+        {
+            int dir = GetDirect(key);
 
             Managers.Game.Player.Direct = (Direct)dir;
             Maps[Managers.Game.Player.CurrPos.X, Managers.Game.Player.CurrPos.Y] = Managers.UI.PlayerPatterns[dir];
@@ -597,62 +660,16 @@ namespace Project_Pixel.Manager.Contents
                     VisitedMaps[corridorWallPos.X, corridorWallPos.Y] = true;
                 }
             }
-            PrintMap();
         }
 
-        private bool IsAdjacentToPlayer(Character character)
+        private int GetDirect(ConsoleKey key)
         {
-            int dx = Math.Abs(character.CurrPos.X - Managers.Game.Player.CurrPos.X);
-            int dy = Math.Abs(character.CurrPos.Y - Managers.Game.Player.CurrPos.Y);
-
-            return (dx <= 1 && dy <= 1);
-        }   
-
-
-        private bool IsMove(Character target)
-        {
-            int[] dirX = { 0, 0, 1, -1 };        // X 방향 좌표
-            int[] dirY = { -1, 1, 0, 0 };        // Y 방향 좌표
-
-            target.PrevPos.X = target.CurrPos.X;
-            target.PrevPos.Y = target.CurrPos.Y;
-
-            if (target.CurrPos.X + dirX[(int)target.Direct] == Managers.Game.Player.CurrPos.X &&
-                target.CurrPos.Y + dirY[(int)target.Direct] == Managers.Game.Player.CurrPos.Y)
+            switch (key)
             {
-                return false;
-            }
-
-            if (IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], MonsterTile.Slime) ||
-                IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], MonsterTile.PocketMouse) ||
-                IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], MonsterTile.Skeleton))
-            {
-                return false;
-            }
-
-            if (IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], NPCTile.Paddler))
-            {   
-                // TODO: 거래 진행
-                return false;
-            }
-
-            if (!IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], TileTypes.Wall))
-            {   // 벽이 아니면 이동
-                target.CurrPos.X += dirX[(int)target.Direct];
-                target.CurrPos.Y += dirY[(int)target.Direct];
-                return true;
-            }
-            return false;
-        }
-
-        private int GetDirect(char moveInput)
-        {
-            switch (moveInput)
-            {
-                case 'W': case 'w': return 0;
-                case 'S': case 's': return 1;
-                case 'D': case 'd': return 2;
-                case 'A': case 'a': return 3;
+                case ConsoleKey.W: return 0;
+                case ConsoleKey.S: return 1;
+                case ConsoleKey.D: return 2;
+                case ConsoleKey.A: return 3;
             }
             return -1;
         }
