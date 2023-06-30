@@ -210,6 +210,25 @@ namespace Threading.Manager
             Console.Write("Space: 공격");
         }
 
+        public void Print_ShopGuide()
+        {
+            int startX = 133;
+            int startY = 43;
+
+            Console.SetCursorPosition(startX + 7, startY);
+            Console.Write("W: ↑");
+            Console.SetCursorPosition(startX + 23, startY - 1);
+            Console.Write($"1: 물약 먹기 (0개)");
+            Console.SetCursorPosition(startX + 23, startY);
+            Console.Write($"2: 음식 먹기 (0개)");
+            Console.SetCursorPosition(startX + 23, startY + 1);
+            Console.Write($"3: 탈출 스크롤 사용 (0개)");
+            Console.SetCursorPosition(startX, startY + 2);
+            Console.Write("A: ←  S: ↓   D: →");
+            Console.SetCursorPosition(startX + 23, startY + 3);
+            Console.Write("Space: 공격");
+        }
+
         public void Print_Enter()
         {
             int startX = 130;

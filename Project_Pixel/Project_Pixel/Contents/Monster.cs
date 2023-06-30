@@ -154,8 +154,8 @@ namespace Project_Pixel.Contents
 
             Status.NowHp -= damage;
 
-            Managers.UI.Print_GameLog($"플레이어에게 {Math.Max(0, damage)} 피해를 받았습니다.                    ");
-            Managers.UI.Print_GameLog($"{Status.Name}의 남은 체력: {Status.NowHp}                     ");
+            Managers.UI.Print_GameLog($"플레이어에게 {Math.Max(0, damage)} 피해를 받았습니다.                 ");
+            Managers.UI.Print_GameLog($"{Status.Name}의 남은 체력: {Status.NowHp}                  ");
 
             if (Status.NowHp <= 0)
             {

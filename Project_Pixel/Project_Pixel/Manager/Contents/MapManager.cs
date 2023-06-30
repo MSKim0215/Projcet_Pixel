@@ -578,9 +578,9 @@ namespace Project_Pixel.Manager.Contents
                 return false;
             }
 
-            if (IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], NPCTile.Paddler))
-            {   
-                // TODO: 거래 진행
+            if (target is Player && IsTileType(target.CurrPos.X + dirX[(int)target.Direct], target.CurrPos.Y + dirY[(int)target.Direct], NPCTile.Paddler))
+            {
+                ShopManager.Trade();
                 return false;
             }
 

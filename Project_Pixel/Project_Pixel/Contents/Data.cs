@@ -67,12 +67,10 @@ namespace Project_Pixel.Contents
     public class ItemData
     {
         public ItemStat Stat { private set; get; }
-        public int Price { private set; get; }
 
-        public void Init(ItemType type, int price)
+        public void Init(ItemType type)
         {
             Stat = Managers.Data.GetItemStatData(type);
-            Price = price;
         }
 
         public string GetItemStatus()

@@ -49,7 +49,7 @@ namespace Project_Pixel.Contents
             }
 
             Status.NowHp -= damage;
-            Managers.UI.Print_GameLog($"{attacker.Status.Name} {Math.Max(0, damage)} 피해를 받았습니다.                  ");
+            Managers.UI.Print_GameLog($"{attacker.Status.Name} {Math.Max(0, damage)} 피해를 받았습니다.           ");
 
             if (Status.NowHp <= 0)
             {
