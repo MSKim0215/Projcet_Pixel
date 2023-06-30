@@ -48,12 +48,11 @@ namespace Project_Pixel.Contents
             }
 
             Status.NowHp -= damage;
-            Managers.UI.Print_GameLog($"{attacker.Name} {damage} 피해를 받았다.");
+            Managers.UI.Print_GameLog($"{attacker.Name} {damage} 피해를 받았습니다.");
 
             if (IsDead())
             {
-                Status.NowHp = 0;
-                Managers.UI.Print_GameLog($"플레이어가 죽었습니다.");
+                OnDead();
             }
         }
 
@@ -63,8 +62,16 @@ namespace Project_Pixel.Contents
 
             if (IsDead())
             {
-                Status.NowHp = 0;
+                OnDead();
             }
+        }
+
+        private void OnDead()
+        {
+            Status.NowHp = 0;
+            Managers.UI.Print_GameLog($"플레이어가 죽었습니다.");
+
+            Managers.Game.MapManager.Maps[CurrPos.X, CurrPos.Y] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
         }
 
         public void UpperStatus(Stat stat)

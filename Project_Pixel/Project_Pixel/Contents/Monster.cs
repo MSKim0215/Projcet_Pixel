@@ -28,6 +28,7 @@ namespace Project_Pixel.Contents
     {
         private List<Node> targetPath = new List<Node>();
         private MonsterType monsterType = MonsterType.None;
+        private bool isMeet = false;
         
         public string Name { protected set; get; }
 
@@ -66,54 +67,61 @@ namespace Project_Pixel.Contents
 
             if (isInXRange && isInYRange)
             {
-                //if (IsThereAWallBetween(CurrPos, playerPos))
-                //{
-                //    return false;
-                //}
-
-                Managers.UI.Print_GameLog($"{Name}을 만났습니다.                 ");
-
-                targetPath = PathManager.FindPath(CurrPos, playerPos);
-                if (targetPath.Count == 1)
+                if (IsThereAWallBetween(CurrPos, playerPos))
                 {
-                    if (targetPath[0].Position != Managers.Game.Player.CurrPos)
-                    {
-                        PrevPos = CurrPos;
-
-                        if (Managers.Game.MapManager.Maps[targetPath[0].Position.X, targetPath[0].Position.Y] == Managers.UI.TilePatterns[(int)TileTypes.Wall] ||
-                            Managers.Game.MapManager.Maps[targetPath[0].Position.X, targetPath[0].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.Slime] ||
-                            Managers.Game.MapManager.Maps[targetPath[0].Position.X, targetPath[0].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.PocketMouse] ||
-                            Managers.Game.MapManager.Maps[targetPath[0].Position.X, targetPath[0].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.Skeleton] ||
-                            Managers.Game.MapManager.Maps[targetPath[0].Position.X, targetPath[0].Position.Y] == Managers.UI.NPCPatterns[(int)NPCTile.Paddler])
-                        {
-                            return true;
-                        }
-                        CurrPos = targetPath[0].Position;
-
-                        Util.Swap(ref Managers.Game.MapManager.Maps[CurrPos.X, CurrPos.Y], ref Managers.Game.MapManager.Maps[PrevPos.X, PrevPos.Y]);
-                        return true;
-                    }
+                    return false;
                 }
-                else if(targetPath.Count >= 2)
-                {
-                    if (targetPath[1].Position != Managers.Game.Player.CurrPos)
-                    {
-                        PrevPos = CurrPos;
 
-                        if (Managers.Game.MapManager.Maps[targetPath[1].Position.X, targetPath[1].Position.Y] == Managers.UI.TilePatterns[(int)TileTypes.Wall] ||
-    Managers.Game.MapManager.Maps[targetPath[1].Position.X, targetPath[1].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.Slime] ||
-    Managers.Game.MapManager.Maps[targetPath[1].Position.X, targetPath[1].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.PocketMouse] ||
-    Managers.Game.MapManager.Maps[targetPath[1].Position.X, targetPath[1].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.Skeleton] ||
-    Managers.Game.MapManager.Maps[targetPath[1].Position.X, targetPath[1].Position.Y] == Managers.UI.NPCPatterns[(int)NPCTile.Paddler])
+                if (!isMeet)
+                {
+                    isMeet = true;
+                    Managers.UI.Print_GameLog($"{Name}을 만났습니다.");
+                }
+
+                targetPath = PathManager.FindPath(CurrPos, playerPos, SightRange + 1);
+                if(targetPath != null)
+                {
+                    if (targetPath.Count == 1)
+                    {
+                        if (targetPath[0].Position != Managers.Game.Player.CurrPos)
                         {
+                            PrevPos = CurrPos;
+
+                            if (Managers.Game.MapManager.Maps[targetPath[0].Position.X, targetPath[0].Position.Y] == Managers.UI.TilePatterns[(int)TileTypes.Wall] ||
+                                Managers.Game.MapManager.Maps[targetPath[0].Position.X, targetPath[0].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.Slime] ||
+                                Managers.Game.MapManager.Maps[targetPath[0].Position.X, targetPath[0].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.PocketMouse] ||
+                                Managers.Game.MapManager.Maps[targetPath[0].Position.X, targetPath[0].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.Skeleton] ||
+                                Managers.Game.MapManager.Maps[targetPath[0].Position.X, targetPath[0].Position.Y] == Managers.UI.NPCPatterns[(int)NPCTile.Paddler])
+                            {
+                                return true;
+                            }
+                            CurrPos = targetPath[0].Position;
+
+                            Util.Swap(ref Managers.Game.MapManager.Maps[CurrPos.X, CurrPos.Y], ref Managers.Game.MapManager.Maps[PrevPos.X, PrevPos.Y]);
                             return true;
                         }
+                    }
+                    else if (targetPath.Count >= 2)
+                    {
+                        if (targetPath[1].Position != Managers.Game.Player.CurrPos)
+                        {
+                            PrevPos = CurrPos;
 
-                        
-                        CurrPos = targetPath[1].Position;
+                            if (Managers.Game.MapManager.Maps[targetPath[1].Position.X, targetPath[1].Position.Y] == Managers.UI.TilePatterns[(int)TileTypes.Wall] ||
+        Managers.Game.MapManager.Maps[targetPath[1].Position.X, targetPath[1].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.Slime] ||
+        Managers.Game.MapManager.Maps[targetPath[1].Position.X, targetPath[1].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.PocketMouse] ||
+        Managers.Game.MapManager.Maps[targetPath[1].Position.X, targetPath[1].Position.Y] == Managers.UI.MonsterPatterns[(int)MonsterTile.Skeleton] ||
+        Managers.Game.MapManager.Maps[targetPath[1].Position.X, targetPath[1].Position.Y] == Managers.UI.NPCPatterns[(int)NPCTile.Paddler])
+                            {
+                                return true;
+                            }
 
-                        Util.Swap(ref Managers.Game.MapManager.Maps[CurrPos.X, CurrPos.Y], ref Managers.Game.MapManager.Maps[PrevPos.X, PrevPos.Y]);
-                        return true;
+
+                            CurrPos = targetPath[1].Position;
+
+                            Util.Swap(ref Managers.Game.MapManager.Maps[CurrPos.X, CurrPos.Y], ref Managers.Game.MapManager.Maps[PrevPos.X, PrevPos.Y]);
+                            return true;
+                        }
                     }
                 }
             }
@@ -161,7 +169,7 @@ namespace Project_Pixel.Contents
 
             Status.NowHp -= damage;
 
-            Managers.UI.Print_GameLog($"플레이어에게 {damage} 피해를 받았다.");
+            Managers.UI.Print_GameLog($"플레이어에게 {Math.Max(0, damage)} 피해를 받았습니다.");
             Managers.UI.Print_GameLog($"{Name}의 남은 체력: {Status.NowHp}");
 
             if (IsDead())
@@ -194,7 +202,7 @@ namespace Project_Pixel.Contents
         {
             Status.NowHp -= damage;
 
-            Managers.UI.Print_GameLog($"상태이상 {damage} 피해를 받았다.");
+            Managers.UI.Print_GameLog($"상태이상 {damage} 피해를 받았습니다.");
             Managers.UI.Print_GameLog($"{Name}의 남은 체력: {Status.NowHp}");
 
             if (IsDead())

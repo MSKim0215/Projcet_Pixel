@@ -529,9 +529,12 @@ namespace Project_Pixel.Manager.Contents
 
         public override void Update()
         {
-            ConsoleKeyInfo keyInput = Console.ReadKey(true);
-            GetKeyEvent(keyInput.Key);
-            PrintMap();
+            if (Managers.Game.Player.Status.NowHp > 0)
+            {
+                ConsoleKeyInfo keyInput = Console.ReadKey(true);
+                GetKeyEvent(keyInput.Key);
+                PrintMap();
+            }
         }
 
         private bool IsAdjacentToChracter(Character character)

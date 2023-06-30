@@ -229,7 +229,7 @@ namespace Threading.Manager
                 systemLogList.Remove(systemLogList[0]);
             }
 
-            string log = $"{getLog}";
+            string log = $"{getLog.PadRight(22, ' ')}";
             systemLogList.Add(log);
 
             for (int i = 0; i < systemLogList.Count; i++)
