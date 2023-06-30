@@ -1,4 +1,5 @@
 ﻿using Project_Pixel.Contents;
+using Project_Pixel.Contents.Debuff_System;
 using Project_Pixel.Utils;
 using System;
 using System.Collections.Generic;
@@ -110,7 +111,7 @@ namespace Project_Pixel.Manager.Contents
 
                     Thread.Sleep(10);
 
-                    for (int i = 0; i < Managers.Game.Monsters.Length; i++)
+                    for (int i = 0; i < Managers.Game.MonsterCountMax; i++)
                     {
                         randomIndex = random.Next(0, rooms.Count);
                         rooms[randomIndex].RefreshSubPosition();
@@ -126,9 +127,9 @@ namespace Project_Pixel.Manager.Contents
                         
                         switch(kind)
                         {
-                            case (int)MonsterTile.Slime: Managers.Game.Monsters[i] = new Slime(); break;
-                            case (int)MonsterTile.PocketMouse: Managers.Game.Monsters[i] = new PocketMouse(); break;
-                            case (int)MonsterTile.Skeleton: Managers.Game.Monsters[i] = new Skeleton(); break;
+                            case (int)MonsterTile.Slime: Managers.Game.Monsters.Add(new Slime()); break;
+                            case (int)MonsterTile.PocketMouse: Managers.Game.Monsters.Add(new PocketMouse()); break;
+                            case (int)MonsterTile.Skeleton: Managers.Game.Monsters.Add(new Skeleton()); break;
                         }
 
                         Managers.Game.Monsters[i].CurrPos = new Position(rooms[randomIndex].SubPosition.X, rooms[randomIndex].SubPosition.Y);
@@ -533,7 +534,7 @@ namespace Project_Pixel.Manager.Contents
             PrintMap();
         }
 
-        private bool IsAdjacentToPlayer(Character character)
+        private bool IsAdjacentToChracter(Character character)
         {
             int dx = Math.Abs(character.CurrPos.X - Managers.Game.Player.CurrPos.X);
             int dy = Math.Abs(character.CurrPos.Y - Managers.Game.Player.CurrPos.Y);
@@ -541,6 +542,13 @@ namespace Project_Pixel.Manager.Contents
             return (dx <= 1 && dy <= 1);
         }   
 
+        private bool IsAdjacentToChracter(Monster monster, Character character)
+        {
+            int dx = Math.Abs(character.CurrPos.X - monster.CurrPos.X);
+            int dy = Math.Abs(character.CurrPos.Y - monster.CurrPos.Y);
+
+            return (dx <= 1 && dy <= 1);
+        }
 
         private bool IsMove(Character target)
         {
@@ -588,8 +596,12 @@ namespace Project_Pixel.Manager.Contents
                 case ConsoleKey.D1: Managers.UI.Print_GameLog("1번 누름"); break;
                 case ConsoleKey.D2: Managers.UI.Print_GameLog("2번 누름"); break;
                 case ConsoleKey.D3: Managers.UI.Print_GameLog("3번 누름"); break;
-                case ConsoleKey.Spacebar: Managers.UI.Print_GameLog("스페이스 누름"); break;
+                case ConsoleKey.Spacebar: AttackEvent(); break;
             }
+
+            MonsterMoveEvent();
+            DebuffEvent();
+            Managers.Game.Player.OnAdjustHunger();
         }
 
         private void MoveEvent(ConsoleKey key)
@@ -601,32 +613,9 @@ namespace Project_Pixel.Manager.Contents
 
             if (IsMove(Managers.Game.Player))
             {
-                // 배고픔 수치 다운
-                Managers.Game.Player.OnAdjustHunger();
-
                 // 이미지 처리
                 Util.Swap(ref Maps[Managers.Game.Player.CurrPos.X, Managers.Game.Player.CurrPos.Y],
                   ref Maps[Managers.Game.Player.PrevPos.X, Managers.Game.Player.PrevPos.Y]);
-
-                // 몬스터 움직임
-                for (int i = 0; i < Managers.Game.Monsters.Length; i++)
-                {
-                    if (IsAdjacentToPlayer(Managers.Game.Monsters[i]))
-                    {
-                        Managers.Game.Monsters[i].Attack();
-                    }
-                    else if (!Managers.Game.Monsters[i].IsPlayerInSight())
-                    {
-                        // 시야에 없으면 자유 이동
-                        Managers.Game.Monsters[i].Direct = (Direct)random.Next(0, 4);
-
-                        if (IsMove(Managers.Game.Monsters[i]))
-                        {
-                            Util.Swap(ref Maps[Managers.Game.Monsters[i].CurrPos.X, Managers.Game.Monsters[i].CurrPos.Y],
-                                ref Maps[Managers.Game.Monsters[i].PrevPos.X, Managers.Game.Monsters[i].PrevPos.Y]);
-                        }
-                    }
-                }
             }
 
             // TODO: 방문 체크 (방)
@@ -658,6 +647,60 @@ namespace Project_Pixel.Manager.Contents
                 foreach (Position corridorWallPos in currentCorridor.AroundPositions)
                 {
                     VisitedMaps[corridorWallPos.X, corridorWallPos.Y] = true;
+                }
+            }
+        }
+
+        private void MonsterMoveEvent()
+        {
+            // 몬스터 움직임
+            for (int i = 0; i < Managers.Game.Monsters.Count; i++)
+            {
+                if (IsAdjacentToChracter(Managers.Game.Monsters[i], Managers.Game.Player))
+                {
+                    Managers.Game.Monsters[i].Attack(Managers.Game.Player);
+                }
+                else if (!Managers.Game.Monsters[i].IsPlayerInSight())
+                {
+                    // 시야에 없으면 자유 이동
+                    Managers.Game.Monsters[i].Direct = (Direct)random.Next(0, 4);
+
+                    if (IsMove(Managers.Game.Monsters[i]))
+                    {
+                        Util.Swap(ref Maps[Managers.Game.Monsters[i].CurrPos.X, Managers.Game.Monsters[i].CurrPos.Y],
+                            ref Maps[Managers.Game.Monsters[i].PrevPos.X, Managers.Game.Monsters[i].PrevPos.Y]);
+                    }
+                }
+            }
+        }
+
+        private void AttackEvent()
+        {
+            // TODO: 플레이어 선공
+            for(int i = 0; i < Managers.Game.Monsters.Count; i++)
+            {
+                if (IsAdjacentToChracter(Managers.Game.Monsters[i]))
+                {
+                    Managers.Game.Player.Attack(Managers.Game.Monsters[i]);
+                }
+            }
+        }
+
+        private void DebuffEvent()
+        {
+            // TODO: 상태이상 데미지
+            List<Debuff> playerDebuffs = Managers.Game.Player.MyDebuffs.ToList();
+            for (int i = 0; i < playerDebuffs.Count; i++)
+            {
+                Managers.Game.Player.OnDebuffDamage(playerDebuffs[i].Type);
+            }
+
+            for (int i = 0; i < Managers.Game.Monsters.Count; i++)
+            {
+                List<Debuff> monsterDebuffs = Managers.Game.Monsters[i].MyDebuffs.ToList();
+                for (int j = 0; j < monsterDebuffs.Count; j++)
+                {
+                    Managers.Game.Monsters[i].OnDebuffDamage(monsterDebuffs[j].Type);
                 }
             }
         }

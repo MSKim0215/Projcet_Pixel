@@ -61,25 +61,6 @@ namespace Project_Pixel.Contents
             MyDebuffs.Remove(new Debuff(debuff));
         }
 
-        public virtual void OnDamaged(Character attacker)
-        {
-            Random random = new Random();
-            int critical = random.Next(0, 101);
-            int damage = (attacker.GetPower() - Status.Defense <= 0) ? 0 : attacker.GetPower() - Status.Defense;
-
-            if(critical <= attacker.Status.CriChance)
-            {
-                damage = (int)(damage * attacker.Status.CriDamageValue);
-            }
-
-            Status.NowHp -= damage;
-
-            if (IsDead())
-            {
-                Status.NowHp = 0;
-            }
-        }
-
         public void OnHealing()
         {
             Status.NowHp += 30;

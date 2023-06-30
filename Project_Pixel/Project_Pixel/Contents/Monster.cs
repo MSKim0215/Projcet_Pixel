@@ -1,4 +1,5 @@
-﻿using Project_Pixel.Manager.Contents;
+﻿using Project_Pixel.Contents.Debuff_System;
+using Project_Pixel.Manager.Contents;
 using Project_Pixel.Utils;
 using System;
 using System.Collections.Generic;
@@ -23,11 +24,12 @@ namespace Project_Pixel.Contents
         Slime, PocketMouse, Skeleton
     }
 
-    public class Monster : Character, IAttack
+    public class Monster : Character, IMonsterAttack
     {
         private List<Node> targetPath = new List<Node>();
         private MonsterType monsterType = MonsterType.None;
-        protected string name;
+        
+        public string Name { protected set; get; }
 
 
         public MonsterType MonsterType
@@ -39,9 +41,9 @@ namespace Project_Pixel.Contents
 
                 switch(monsterType)
                 {
-                    case MonsterType.Slime: name = "슬라임"; break;
-                    case MonsterType.PocketMouse: name = "주머니 쥐"; break;
-                    case MonsterType.Skeleton: name = "스켈레톤"; break;
+                    case MonsterType.Slime: Name = "슬라임"; break;
+                    case MonsterType.PocketMouse: Name = "주머니 쥐"; break;
+                    case MonsterType.Skeleton: Name = "스켈레톤"; break;
                 }
             }
         }
@@ -69,7 +71,7 @@ namespace Project_Pixel.Contents
                 //    return false;
                 //}
 
-                Managers.UI.Print_GameLog($"{name}을 만났습니다.                 ");
+                Managers.UI.Print_GameLog($"{Name}을 만났습니다.                 ");
 
                 targetPath = PathManager.FindPath(CurrPos, playerPos);
                 if (targetPath.Count == 1)
@@ -140,10 +142,74 @@ namespace Project_Pixel.Contents
             return false; // 시작 위치와 끝 위치 사이에 벽이 없습니다.
         }
 
-        public virtual void Attack()
+        public virtual void Attack(Player player)
         {
-            Managers.UI.Print_GameLog($"{name} 공격!                    ");
-            Managers.Game.Player.OnDamaged(this);
+            Managers.UI.Print_GameLog($"{Name} 공격!                    ");
+            player.OnDamaged(this);
+        }
+
+        public virtual void OnDamaged(Player attacker)
+        {
+            Random random = new Random();
+            int critical = random.Next(0, 101);
+            int damage = (attacker.GetPower() - Status.Defense <= 0) ? 0 : attacker.GetPower() - Status.Defense;
+
+            if (critical <= attacker.Status.CriChance)
+            {
+                damage = (int)(damage * attacker.Status.CriDamageValue);
+            }
+
+            Status.NowHp -= damage;
+
+            Managers.UI.Print_GameLog($"플레이어에게 {damage} 피해를 받았다.");
+            Managers.UI.Print_GameLog($"{Name}의 남은 체력: {Status.NowHp}");
+
+            if (IsDead())
+            {
+                OnDead();
+            }
+        }
+
+        public void OnDebuffDamage(DebuffType type)
+        {
+            SetDebuff(type);
+
+            Debuff debuff = MyDebuffs.Where(what => what.Type == type).First();
+            if (debuff != null)
+            {
+                if (debuff.Turn > 0)
+                {
+                    debuff.DecreaseTurn();
+                    OnDamaged(debuff.GetDamage());
+                    debuff.ClearTurn();
+                }
+                else
+                {
+                    MyDebuffs.Remove(debuff);
+                }
+            }
+        }
+
+        public void OnDamaged(int damage = 1)
+        {
+            Status.NowHp -= damage;
+
+            Managers.UI.Print_GameLog($"상태이상 {damage} 피해를 받았다.");
+            Managers.UI.Print_GameLog($"{Name}의 남은 체력: {Status.NowHp}");
+
+            if (IsDead())
+            {
+                OnDead();
+            }
+        }
+
+        private void OnDead()
+        {
+            Status.NowHp = 0;
+            Managers.UI.Print_GameLog($"{Name}가 죽었습니다.");
+
+            Managers.Game.MapManager.Maps[CurrPos.X, CurrPos.Y] = Managers.UI.TilePatterns[(int)TileTypes.Empty];
+            Managers.Game.Monsters.Remove(this);
         }
     }
 
@@ -152,17 +218,17 @@ namespace Project_Pixel.Contents
         public Slime(): base(MonsterType.Slime)
         {
             MonsterType = MonsterType.Slime;
-            SetStatus(new Stat(100, 1, 1, 10));        // 체력, 공격력, 방어력, 치명타 확률
+            SetStatus(new Stat(20, 1, 0, 10));        // 체력, 공격력, 방어력, 치명타 확률
         }
 
-        public override void Attack()
+        public override void Attack(Player player)
         {
-            base.Attack();
+            base.Attack(player);
 
             Random rand = new Random();
-            if(rand.Next(0, 101) < 30)
+            if (rand.Next(0, 101) < 30)
             {
-                Managers.Game.Player.OnDebuffDamage(Debuff_System.DebuffType.Poisoning);
+                Managers.Game.Player.OnDebuffDamage(DebuffType.Poisoning);
             }
         }
     }
@@ -172,12 +238,12 @@ namespace Project_Pixel.Contents
         public PocketMouse() : base(MonsterType.PocketMouse)
         {
             MonsterType = MonsterType.PocketMouse;
-            SetStatus(new Stat(200, 2, 2, 30));        // 체력, 공격력, 방어력, 치명타 확률
+            SetStatus(new Stat(25, 2, 0, 10));        // 체력, 공격력, 방어력, 치명타 확률
         }
 
-        public override void Attack()
+        public override void Attack(Player player)
         {
-            base.Attack();
+            base.Attack(player);
 
             Random rand = new Random();
             if (rand.Next(0, 101) < 30)
@@ -192,7 +258,7 @@ namespace Project_Pixel.Contents
         public Skeleton() : base(MonsterType.Skeleton)
         {
             MonsterType = MonsterType.Skeleton;
-            SetStatus(new Stat(300, 3, 3, 50));        // 체력, 공격력, 방어력, 치명타 확률
+            SetStatus(new Stat(30, 2, 1, 5));        // 체력, 공격력, 방어력, 치명타 확률
         }
     }
 }

@@ -13,7 +13,9 @@ namespace Threading.Manager
         public MapManager MapManager { private set; get; }
         public Player Player { private set; get; }
         public Peddler Peddler { private set; get; }
-        public Monster[] Monsters { private set; get; } = new Monster[5];
+        public List<Monster> Monsters { private set; get; } = new List<Monster>();
+
+        public int MonsterCountMax { private set; get; } = 5;
 
         public void Init()
         {

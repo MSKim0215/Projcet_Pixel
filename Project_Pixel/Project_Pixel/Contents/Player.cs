@@ -1,11 +1,13 @@
 ﻿using Project_Pixel.Contents.Debuff_System;
 using Project_Pixel.Contents.Shop;
 using Project_Pixel.Manager.Contents;
+using Project_Pixel.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Threading.Manager;
 
 namespace Project_Pixel.Contents
@@ -15,7 +17,7 @@ namespace Project_Pixel.Contents
         Up, Down, Right, Left
     }
 
-    public class Player : Character
+    public class Player : Character, IPlayerAttack
     {
         public PlayerInventory Inven { private set; get; }
         public new PlayerStat Status { private set; get; }
@@ -28,7 +30,13 @@ namespace Project_Pixel.Contents
             Status = new PlayerStat(50, 3, 0, 10);      // 체력, 공격력, 방어력, 치명타 확률      
         }
 
-        public override void OnDamaged(Character attacker)
+        public void Attack(Monster monster)
+        {
+            Managers.UI.Print_GameLog("플레이어의 공격!");
+            monster.OnDamaged(this);
+        }
+
+        public void OnDamaged(Monster attacker)
         {
             Random random = new Random();
             int critical = random.Next(0, 101);
@@ -40,10 +48,12 @@ namespace Project_Pixel.Contents
             }
 
             Status.NowHp -= damage;
+            Managers.UI.Print_GameLog($"{attacker.Name} {damage} 피해를 받았다.");
 
             if (IsDead())
             {
                 Status.NowHp = 0;
+                Managers.UI.Print_GameLog($"플레이어가 죽었습니다.");
             }
         }
 
