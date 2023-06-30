@@ -38,6 +38,11 @@ namespace Project_Pixel.Contents.Shop
     {
         public int Gold { private set; get; } = 5000;      // 소지금액
 
+        public PlayerInventory()
+        {
+
+        }
+
         public void ResumeGold(int gold)
         {
             //if(gold > 0)

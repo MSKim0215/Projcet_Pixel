@@ -596,15 +596,19 @@ namespace Project_Pixel.Manager.Contents
                 // 플레이어 이동 처리
                 case ConsoleKey.W: case ConsoleKey.S: case ConsoleKey.D: case ConsoleKey.A: MoveEvent(key); break;
 
-                case ConsoleKey.D1: Managers.UI.Print_GameLog("1번 누름"); break;
-                case ConsoleKey.D2: Managers.UI.Print_GameLog("2번 누름"); break;
+                case ConsoleKey.D1: UsePotion(); break;
+                case ConsoleKey.D2: UseFood(); break;
                 case ConsoleKey.D3: Managers.UI.Print_GameLog("3번 누름"); break;
                 case ConsoleKey.Spacebar: AttackEvent(); break;
             }
 
             MonsterMoveEvent();
             DebuffEvent();
-            Managers.Game.Player.OnAdjustHunger();
+
+            if (key != ConsoleKey.D2)
+            {
+                Managers.Game.Player.OnAdjustHunger();
+            }
         }
 
         private void MoveEvent(ConsoleKey key)
@@ -706,6 +710,18 @@ namespace Project_Pixel.Manager.Contents
                     Managers.Game.Monsters[i].OnDebuffDamage(monsterDebuffs[j].Type);
                 }
             }
+        }
+
+        private void UsePotion()
+        {
+            Managers.UI.Print_GameLog("플레이어가 체력이 5 회복 되었습니다.");
+            Managers.Game.Player.OnHealing(5);
+        }
+
+        private void UseFood()
+        {
+            Managers.UI.Print_GameLog("플레이어가 배고픔이 5 회복 되었습니다.");
+            Managers.Game.Player.OnAdjustHunger(5);
         }
 
         private int GetDirect(ConsoleKey key)

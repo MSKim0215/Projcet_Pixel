@@ -57,17 +57,17 @@ namespace Project_Pixel.Contents
 
         protected void RemoveDebuff(DebuffType debuff)
         {
-            if (!MyDebuffs.Contains(new Debuff(debuff), new DebuffComparer())) return;
-            MyDebuffs.Remove(new Debuff(debuff));
-        }
+            Debuff newDebuff = new Debuff(debuff);
+            if (!MyDebuffs.Contains(newDebuff, new DebuffComparer())) return;
 
-        public void OnHealing()
-        {
-            Status.NowHp += 30;
-
-            if (Status.NowHp >= Status.MaxHp)
+            List<Debuff> debuffs = MyDebuffs.ToList();
+            for(int i = 0; i < debuffs.Count; i++)
             {
-                Status.NowHp = Status.MaxHp;
+                if (debuffs[i].Name == newDebuff.Name)
+                {
+                    MyDebuffs.Remove(debuffs[i]);
+                    break;
+                }
             }
         }
 

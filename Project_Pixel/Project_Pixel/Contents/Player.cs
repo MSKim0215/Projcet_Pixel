@@ -91,6 +91,7 @@ namespace Project_Pixel.Contents
             if (GetHungry() >= GetMaxHungry())
             {
                 Status.Hungry = GetMaxHungry();
+
                 RemoveDebuff(DebuffType.Hunger);
                 RemoveDebuff(DebuffType.Starvation);
             }
@@ -101,9 +102,16 @@ namespace Project_Pixel.Contents
                 // TODO: 0% 되면 굶주림 상태
                 OnDebuffDamage(DebuffType.Starvation);
             }
-            else if (GetHungry() <= GetMaxHungry() / 3)
+            else if (GetHungry() < GetMaxHungry() / 3)
             {   // TODO: 30% 아래가 되면 배고픔 상태
+                RemoveDebuff(DebuffType.Starvation);
                 OnDebuffDamage(DebuffType.Hunger);
+            }
+            else if(GetHungry() >= GetMaxHungry() / 3)
+            {
+                RemoveDebuff(DebuffType.Hunger);
+                RemoveDebuff(DebuffType.Starvation);
+                Managers.UI.Print_State(this);
             }
 
             Managers.UI.Print_Status(this);
@@ -130,6 +138,16 @@ namespace Project_Pixel.Contents
 
             Managers.UI.Print_Status(this);
             Managers.UI.Print_State(this);
+        }
+
+        public void OnHealing(int heal)
+        {
+            Status.NowHp += heal;
+
+            if (Status.NowHp >= Status.MaxHp)
+            {
+                Status.NowHp = Status.MaxHp;
+            }
         }
 
         public void ResumeGold(int gold) => Inven.ResumeGold(gold);

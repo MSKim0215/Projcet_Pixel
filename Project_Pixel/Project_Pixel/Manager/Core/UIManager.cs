@@ -24,8 +24,8 @@ namespace Threading.Manager
         public void Init()
         {
             Console.Title = "짭셀 던전";
-            Console.SetWindowSize(185, 50);
             Console.CursorVisible = false;
+            Console.SetWindowSize(185, 50);
         }
 
         public void Print_GameScene()
@@ -96,10 +96,21 @@ namespace Threading.Manager
             if (player.MyDebuffs != null)
             {
                 List<Debuff> debuffs = player.MyDebuffs.ToList();
-                for (int i = 0; i < debuffs.Count; i++)
+                if (debuffs.Count > 0)
                 {
-                    Console.SetCursorPosition(startX + 2, startY + (i * 2) + 2);
-                    Console.Write($"{debuffs[i].Name.PadLeft(11, ' ')}");
+                    for (int i = 0; i < debuffs.Count; i++)
+                    {
+                        Console.SetCursorPosition(startX + 2, startY + (i * 2) + 2);
+                        Console.Write($"{debuffs[i].Name.PadLeft(11, ' ')}");
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        Console.SetCursorPosition(startX + 2, startY + (i * 2) + 2);
+                        Console.Write($"{"".PadLeft(23, ' ')}");
+                    }
                 }
             }
 
